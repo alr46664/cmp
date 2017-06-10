@@ -1,0 +1,11 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(){
+    int intix = 4;
+    int intaq = 8;
+    if(intix == 4){
+        int ifthen = 5 + intaq;
+    }
+    return 0;
+}
