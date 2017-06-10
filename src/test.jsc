@@ -1,0 +1,11 @@
+var oks = 78;
+
+function main(){
+    var varix = 4;
+    var avaraq = 8;
+    var avaarq = 80;
+    if(avaraq == varix || varix == 4){
+        var ifthen = 5 + avaarq + oks;
+    }
+    return ifthen;
+}

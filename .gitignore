@@ -5,6 +5,7 @@
 *.slo
 *.lo
 *.o
+*.oc
 *.obj
 
 # Precompiled Headers
@@ -31,4 +32,8 @@
 *.out
 *.app
 
+# ignore arquivos que nao precisamos manter estado no git
 .directory
+lex.yy.c
+*.sublime-project
+*.sublime-workspace
