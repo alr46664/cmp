@@ -1,11 +1,14 @@
-var oks = 78;
+def bla(var c){
+    return c+7;
+}
 
-function main(){
+def main(){
     var varix = 4;
-    var avaraq = 8;
+    let aletaq = 8;
     var avaarq = 80;
-    varix = avaraq + avaarq;
-    if(avaraq == varix || varix == 4){
+    bla(varix);
+    varix = aletaq + avaarq;
+    if(aletaq == varix || varix == 4){
         var ifthen = 5 + avaarq + oks;
     }
     return ifthen;

@@ -1,0 +1,24 @@
+
+//this is a valid line code
+// this should also be valid
+&&
+||
+<
+>
+=
+<=
+>=
+==
+!=
+!
+/
+*
++
+-
+(
+)
+{
+}
+[
+]
+# this should report an error

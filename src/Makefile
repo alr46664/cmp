@@ -3,7 +3,7 @@ MIPS=qtspim
 
 # compilador c, linkar com o flex,
 GCC=gcc
-CFLAGS=-lfl -std=c99
+CFLAGS=-lfl
 
 # compilador c++, codegen
 # GPP=g++
