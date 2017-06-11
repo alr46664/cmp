@@ -1,0 +1,22 @@
+#!/bin/bash
+IN_FILE=$1
+IN_FILENAME=$(basename "$IN_FILE")
+IN_EXTENSION="${IN_FILENAME##*.}"
+IN_FILENAME="${IN_FILENAME%.*}"
+
+OUT_FILE=$2
+OUT_FILENAME=$(basename "$OUT_FILE")
+OUT_EXTENSION="${OUT_FILENAME##*.}"
+OUT_FILENAME="${OUT_FILENAME%.*}"
+
+ARGS_EXPECTED=2
+
+if [ $# -ne $ARGS_EXPECTED ]; then
+    echo -e "\nERROR: (Arguments) You provided $# arguments, and the lexical scanner needs at least $ARGS_EXPECTED\n"
+    exit 1
+fi
+
+# rode os analisadores e em seguida rode o gerador de codigo
+./lexico "$IN_FILE" "$OUT_FILENAME.syn" &&
+cat "$OUT_FILENAME.syn" | ./gen > "$OUT_FILE"
+

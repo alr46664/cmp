@@ -1,0 +1,40 @@
+#!/bin/bash
+IN_FILE=$1
+IN_FILENAME=$(basename "$IN_FILE")
+IN_EXTENSION="${IN_FILENAME##*.}"
+IN_FILENAME="${IN_FILENAME%.*}"
+
+OUT_FILE=$2
+OUT_FILENAME=$(basename "$OUT_FILE")
+OUT_EXTENSION="${OUT_FILENAME##*.}"
+OUT_FILENAME="${OUT_FILENAME%.*}"
+
+ARGS_EXPECTED=2
+
+# execute analisador lexico
+run_lex(){
+    cat "$1" | ./lex > "$2"
+}
+
+# execute analisador sintatico
+run_syn(){
+    cat "$1" | ./syn  > "$2"
+}
+
+if [ $# -ne $ARGS_EXPECTED ]; then
+    echo -e "\nERROR: (Arguments) You provided $# arguments, and the lexical scanner needs at least $ARGS_EXPECTED\n"
+    exit 1
+fi
+
+# se for lex, execute o analisador lexico e grave o resultado
+# se for syn, execute os analisadores na ordem correta e grave o resultado
+# do contrario, desejamos executar uma compilacao logo devemos executar
+#              o pipe do syn ate chegarmos em codegen
+if [ "$OUT_EXTENSION" == "lex" ]; then
+    run_lex "$IN_FILE" "$OUT_FILE"
+else
+    run_lex "$IN_FILE" "$OUT_FILENAME.lex" &&
+    run_syn "$OUT_FILENAME.lex" "$OUT_FILE"
+fi
+
+

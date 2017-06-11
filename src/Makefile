@@ -50,7 +50,7 @@ CODEGEN_TARGET=$(CODEGEN_BIN).out
 # 		make arquivo_jsc_a_ser_analisado.syn
 %.syn: $(ANALISER_TARGET)
 	@echo -e "\n\tExecutando analisador simbolico (parser) ...\n"
-	@./$(ANALISER_TARGET) $*.jsc $*.syn
+	@./$(ANALISER_BIN) $*.jsc $*.syn
 	@echo -e "Resultado:\n"
 	@cat $*.syn
 
@@ -59,7 +59,7 @@ CODEGEN_TARGET=$(CODEGEN_BIN).out
 # 		make arquivo_jsc_a_ser_compilado.asm
 %.asm: $(CODEGEN_TARGET)
 	@echo -e "\n\tExecutando gerador de código (assembly) ...\n"
-	@./codegen $*.jsc $*.asm
+	@./$(CODEGEN_BIN) $*.jsc $*.asm
 	@echo -e "Resultado:\n"
 	@cat $*.asm
 
