@@ -26,7 +26,7 @@ CODEGEN_BIN=codegen.out
 # sintaxe:
 # 		make arquivo_jsc_a_ser_executado.spim
 %.spim: %.asm
-	@echo -e "\n"
+	@echo -e "\n\tExecutando simulador SPIM (assembly) ...\n"
 	@$(MIPS) -file $*.asm
 
 # rode o analisador lexico
@@ -35,6 +35,8 @@ CODEGEN_BIN=codegen.out
 %.lex: $(LEXICO_BIN)
 	@echo -e "\n\tExecutando analisador lexico (scanner/tokenizer) ...\n"
 	@./$(LEXICO_BIN) $*.jsc $*.lex
+	@echo -e "Resultado:\n"
+	@cat $*.lex
 
 # rode o analisador sintatico
 # sintaxe:
@@ -42,6 +44,8 @@ CODEGEN_BIN=codegen.out
 %.syn: $(LEXICO_BIN)
 	@echo -e "\n\tExecutando analisador simbolico (parser) ...\n"
 	@./$(LEXICO_BIN) $*.jsc $*.syn
+	@echo -e "Resultado:\n"
+	@cat $*.syn
 
 # rode o gerador de codigo
 # sintaxe:
@@ -49,6 +53,8 @@ CODEGEN_BIN=codegen.out
 %.asm: $(CODEGEN_BIN)
 	@echo -e "\n\tExecutando gerador de código (assembly) ...\n"
 	@./$(CODEGEN_BIN) $*.jsc $*.asm
+	@echo -e "Resultado:\n"
+	@cat $*.asm
 
 # compile o analisador lexico / sintatico
 $(LEXICO_BIN): $(OBJ_LEXICO)
