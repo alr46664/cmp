@@ -35,6 +35,10 @@
 # ignore arquivos que nao precisamos manter estado no git
 .directory
 lex.yy.c
+lexico
+codegen
+lex
+syn
 *.lex
 *.syn
 *.asm
