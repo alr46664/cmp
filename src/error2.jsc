@@ -1,0 +1,7 @@
+
+
+//this is a valid line code
+// rthis should also be valid
+//cthis should also be valid
+/cthis should report an error
+/ cthis should report an error

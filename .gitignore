@@ -6,6 +6,7 @@
 *.lo
 *.o
 *.oc
+*.ocpp
 *.obj
 
 # Precompiled Headers

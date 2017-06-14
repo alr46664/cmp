@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int yylex(void);
+
 int main(int argc, char **argv) {
-    printf("SYN\n");
+    while(yylex() != 0) {}
     return 0;
 }

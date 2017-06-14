@@ -3,7 +3,10 @@ MIPS=qtspim
 
 # compilador c, linkar com o flex,
 GCC=gcc
-CFLAGS=-lfl
+CFLAGS=-lfl -lm
+
+GPP=g++
+CPPFLAGS=-lm -std=c++11
 
 # compilador c++, codegen
 # GPP=g++
@@ -15,7 +18,7 @@ CFLAGS=-lfl
 # OBJ_CPP_FILES := $(notdir $(CPP_FILES:.cpp=.o))
 
 # arquivos objeto de cada programa (lexico e codegen)
-OBJ_SYN=syn.o
+OBJ_SYN=syn.ocpp classes/node.ocpp
 OBJ_LEX=lex.yy.o
 OBJ_GEN=gen.o
 
@@ -70,11 +73,11 @@ $(ANALISER_TARGET): $(LEX_BIN) $(SYN_BIN)
 
 # compile o analisador lexico
 $(LEX_BIN): $(OBJ_LEX)
-	$(GCC) -o $(LEX_BIN) $< $(CFLAGS)
+	$(GCC) -o $(LEX_BIN) $^ $(CFLAGS)
 
 # compile o analisador semantico/sintatico
 $(SYN_BIN): $(OBJ_SYN)
-	$(GCC) -o $(SYN_BIN) $< $(CFLAGS)
+	$(GPP) -o $(SYN_BIN) $^ $(CPPFLAGS)
 
 # compile o analisador (lexico e sintatico) e torne o
 # script ./lexico executavel
@@ -83,7 +86,7 @@ $(CODEGEN_TARGET): $(GEN_BIN) $(ANALISER_TARGET)
 
 # compile o gerador de codigo lexico
 $(GEN_BIN): $(OBJ_GEN)
-	$(GCC) -o $(GEN_BIN) $< $(CFLAGS)
+	$(GCC) -o $(GEN_BIN) $^ $(CFLAGS)
 
 #compile o analisador lexico (scanner) usando flex
 lex.yy.c: lex.yy.l
@@ -96,12 +99,13 @@ clean:
 
 # limpe binarios e arquivos objeto e arquivos temporarios
 full_clean: clean
-	@$(RM) $(LEX_BIN) $(SYN_BIN) $(GEN_BIN) *.o *.oc lex.yy.c
-
-# # compile de .cpp em arquivo objeto .o
-# %.o: %.cpp
-# 	$(GPP) -c -o $@ $< $(CPPFLAGS)
+	@$(RM) $(LEX_BIN) $(SYN_BIN) $(GEN_BIN) *.o *.ocpp classes/*.o classes/*.ocpp lex.yy.c
 
 # compile de .c em arquivo objeto .o
 %.o: %.c
-	$(GCC) -c -o $@ $< $(CFLAGS)
+	$(GCC) -c -o $@ $^ $(CFLAGS)
+
+# compile de .cpp em arquivo objeto .ocpp
+%.ocpp: %.cpp
+	$(GPP) -c -o $@ $^ $(CPPFLAGS)
+

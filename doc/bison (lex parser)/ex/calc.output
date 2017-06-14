@@ -1,0 +1,137 @@
+Gramática
+
+    0 $accept: S $end
+
+    1 S: S E '\n'
+    2  | /* vazio */
+
+    3 E: E E '+'
+    4  | E E '-'
+    5  | E E '*'
+    6  | E E '/'
+    7  | T_Int
+
+
+Terminais, com as regras onde eles aparecem
+
+$end (0) 0
+'\n' (10) 1
+'*' (42) 5
+'+' (43) 3
+'-' (45) 4
+'/' (47) 6
+error (256)
+T_Int (258) 7
+
+
+Não-terminais com as regras onde eles aparecem
+
+$accept (9)
+    à esquerda: 0
+S (10)
+    à esquerda: 1 2, à direita: 0 1
+E (11)
+    à esquerda: 3 4 5 6 7, à direita: 1 3 4 5 6
+
+
+State 0
+
+    0 $accept: . S $end
+
+    $padrão  reduzir usando a regra 2 (S)
+
+    S  ir ao estado 1
+
+
+State 1
+
+    0 $accept: S . $end
+    1 S: S . E '\n'
+
+    $end   deslocar, e ir ao estado 2
+    T_Int  deslocar, e ir ao estado 3
+
+    E  ir ao estado 4
+
+
+State 2
+
+    0 $accept: S $end .
+
+    $padrão  aceitar
+
+
+State 3
+
+    7 E: T_Int .
+
+    $padrão  reduzir usando a regra 7 (E)
+
+
+State 4
+
+    1 S: S E . '\n'
+    3 E: E . E '+'
+    4  | E . E '-'
+    5  | E . E '*'
+    6  | E . E '/'
+
+    T_Int  deslocar, e ir ao estado 3
+    '\n'   deslocar, e ir ao estado 5
+
+    E  ir ao estado 6
+
+
+State 5
+
+    1 S: S E '\n' .
+
+    $padrão  reduzir usando a regra 1 (S)
+
+
+State 6
+
+    3 E: E . E '+'
+    3  | E E . '+'
+    4  | E . E '-'
+    4  | E E . '-'
+    5  | E . E '*'
+    5  | E E . '*'
+    6  | E . E '/'
+    6  | E E . '/'
+
+    T_Int  deslocar, e ir ao estado 3
+    '+'    deslocar, e ir ao estado 7
+    '-'    deslocar, e ir ao estado 8
+    '*'    deslocar, e ir ao estado 9
+    '/'    deslocar, e ir ao estado 10
+
+    E  ir ao estado 6
+
+
+State 7
+
+    3 E: E E '+' .
+
+    $padrão  reduzir usando a regra 3 (E)
+
+
+State 8
+
+    4 E: E E '-' .
+
+    $padrão  reduzir usando a regra 4 (E)
+
+
+State 9
+
+    5 E: E E '*' .
+
+    $padrão  reduzir usando a regra 5 (E)
+
+
+State 10
+
+    6 E: E E '/' .
+
+    $padrão  reduzir usando a regra 6 (E)

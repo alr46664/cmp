@@ -4,8 +4,8 @@ letter [a-zA-Z]
 alphanum [a-zA-Z0-9]
 symbols [\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>]
 line [\n]
-non_printable [\n\t ]
-comments ("\\".*)
+non_printable [\t ]
+comments ("//".*)
 invalid [^a-zA-Z0-9\n\t _\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
 
 %{
@@ -16,6 +16,9 @@ invalid [^a-zA-Z0-9\n\t _\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
     int pos = 0;
 %}
 %%
+("/"[^\/]) {
+    fprintf(stderr, "ERROR: (Line %d) Unrecognized pattern \"%s\".\n\n", lines, yytext);
+    exit(1);}
 {invalid} {
     fprintf(stderr, "ERROR: (Line %d) Invalid character \"%s\" found.\n\n", lines, yytext);
     exit(1);}
