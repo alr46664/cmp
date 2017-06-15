@@ -3,10 +3,14 @@ MIPS=qtspim
 
 # compilador c, linkar com o flex,
 GCC=gcc
-CFLAGS=-lfl -lm
+CFLAGS=-ggdb -g3 -lfl -lm
 
 GPP=g++
-CPPFLAGS=-lm -std=c++11
+CPPFLAGS=-ggdb  -g3 -lm -std=c++11
+
+# VERIFICACAO DE LEAKS DE MEMORIA
+VALGRIND=valgrind
+VALGRIND_ARGS=--leak-check=full --show-leak-kinds=all -v
 
 # compilador c++, codegen
 # GPP=g++
@@ -94,12 +98,19 @@ lex.yy.c: lex.yy.l
 
 # limpe arquivos temporarios
 clean:
-	@echo -e "\n\tLimpando pasta...\n"
+	@echo -e "\n\tLimpando arquivos .syn .lex .asm ...\n"
 	@$(RM) *.syn *.lex *.asm
 
-# limpe binarios e arquivos objeto e arquivos temporarios
-full_clean: clean
+# limpe binarios e arquivos objeto
+clean_bin:
+	@echo -e "\n\tLimpando binarios e objetos ...\n"
 	@$(RM) $(LEX_BIN) $(SYN_BIN) $(GEN_BIN) *.o *.ocpp classes/*.o classes/*.ocpp lex.yy.c
+
+full_clean: clean_bin clean
+
+
+%.v: %
+	@$(VALGRIND) $(VALGRIND_ARGS) ./$*
 
 # compile de .c em arquivo objeto .o
 %.o: %.c

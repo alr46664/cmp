@@ -10,60 +10,9 @@
 
 using namespace std;
 
-
-// create the single parser that the whole program will use
-Parser p;
-
-// void parse_token(string &token, string &val, int line){
-//             // TODO: TO REMOVE (debug)
-//     cout << token << "- -" << val << "- -" << line << endl;
-//     // return;
-//     if (token == "ID")
-//         // TODO: TO REMOVE (debug)
-//         cout << "ID found" << endl;
-//         // crie variavel erro para caso um error ocorra
-//         Error e(string("ID \"") + val + "\" can only be used in declarations of variables and functions, as well as in assigns, expressions and function calls.", line, ERR_ID);
-
-//         if (!operate.empty()){
-//             operate.add(val, {"decfunc", "decvar"}, e);
-//         } else {
-//             operate.add(val);
-//         }
-//     else if (token == "KEY") {
-//          // crie variavel erro para caso um error ocorra
-//         Error e(string("KEY \"") + val + "\" was not recognized. Valid values are var,let,def,if,else,while,return,break,continue.", line, ERR_KEY);
-//         if (val == "def"){
-//             // TODO: TO REMOVE (debug)
-//             cout << "KEY def found" << endl;
-//             operate.add("decfunc");
-//         } else if (val == "var" || val == "let"){
-//             // TODO
-//         } else if (val == "if"){
-//             // TODO
-//         } else if (val == "else"){
-//             // TODO
-//         } else if (val == "while"){
-//             // TODO
-//         } else if (val == "return"){
-//             // TODO
-//         } else if (val == "break"){
-//             // TODO
-//         } else if (val == "continue"){
-//             // TODO
-//         } else {
-//             e.print();
-//         }
-//     } else if (token == "DEC") {
-
-//     } else if (token == "SYM") {
-
-//     } else{
-//         Error e(string("Token \"") + token + "\" not recognized", line, ERR_TOKEN_UNDEF);
-//         e.print();
-//     }
-// }
-
 int main(int argc, char **argv) {
+    // create the single parser that the whole program will use
+    Parser p;
     // store the whole stdin / cin line
     int line;
     string token, val;
@@ -81,6 +30,6 @@ int main(int argc, char **argv) {
         p.parse(token, val, line);
     }
     // print the program AST tree
-    cout << p.getProgramAST() << endl;
+    cout << *p.getProgramAST() << endl;
     return 0;
 }

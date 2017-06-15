@@ -9,6 +9,7 @@
 #define ERR_KEY 3
 #define ERR_DEC 4
 #define ERR_SYM 5
+#define ERR_UNK 5
 
 class Error {
 private:

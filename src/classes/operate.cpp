@@ -1,55 +1,61 @@
-
+#include "ast_types.h"
+#include "error.h"
 #include "operate.h"
 
 using namespace std;
+
+Node* Operate::getProgramAST(){
+    return program;
+}
 
 bool Operate::empty(){
     return to_operate.empty();
 }
 
-Node Operate::top(){
+Node* Operate::top(){
     return to_operate.top();
 }
 
-void Operate::add(const char* val){
-    this->add(string(val));
+Node* Operate::add(const char* val){
+    return this->add(string(val));
 }
 
-void Operate::add(string val){
-    Node node(val);
-    to_operate.push(node);
+Node* Operate::add(string val){
+    Error e(string("Could not add \"") + val + "\" to the AST tree", 0, ERR_UNK);
+    return this->add(val, {}, e);
 }
 
-void Operate::add(Node& n, Error& e){
-    if (!empty()){
-        // faca n ser o pai de top, e top ser o primeiro ramo de n
-        Node top = to_operate.top();
-        to_operate.pop();
-        n.add(top);
-        to_operate.push(n);
+Node* Operate::add(string val, initializer_list<char*> cond, Error& e){
+    Node *n = to_operate.top();
+    bool res = (cond.begin() == cond.end());
+    for (initializer_list<char*>::iterator it = cond.begin(); it != cond.end(); it++){
+        // cout << *it << endl;
+        res |= (n->getType() == *it);
+        if (res) break;
     }
-    e.print();
-}
-
-void Operate::add(string val, initializer_list<char*> cond, Error& e){
-    Node node(val);
-    if (!empty()){
-        Node &n = to_operate.top();
-        bool res = false;
-        for (initializer_list<char*>::iterator it = cond.begin(); it != cond.end(); it++){
-            res |= (n.getType() == *it);
-            if (res) break;
-        }
-        if (res){
-            n.add(val);
-            return;
-        }
+    // cout << res << endl;
+    if (!res){
+        e.print();
     }
-    e.print();
+    to_operate.push(n->add(val));
+    return to_operate.top();
 }
 
-Node Operate::pop(){
-    Node n = to_operate.top();
+Node* Operate::pop(){
+    Node *n = to_operate.top();
     to_operate.pop();
     return n;
+}
+
+// move o parent como filho do no especificado
+Node* Operate::add_swap(Node *new_parent){
+    // remova old_parent da arvore
+    Node *old_parent = this->pop();
+    this->top()->pop();
+    // adicione new_parent como pai de old_parent
+    this->top()->add(new_parent);
+    new_parent->add(old_parent);
+    // adicione new_parent ao stack
+    to_operate.push(new_parent);
+    return to_operate.top();
 }

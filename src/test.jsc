@@ -1,15 +1,32 @@
-def bla(var c){
+def main(c,q){
     return c+7;
 }
 
-def main(){
-    var varix = 4;
-    let aletaq = 8;
-    var avaarq = 80;
-    bla(varix);
-    varix = aletaq + avaarq;
-    if(aletaq == varix || varix == 4){
-        var ifthen = 5 + avaarq + oks;
-    }
-    return ifthen;
-}
+// def bla(c){
+//     return c+7;
+// }
+//
+// def main(){
+//     var varix = 4;
+//     let aletaq = 8;
+//     var avaarq = 80;
+//     bla(varix);
+//     varix = aletaq + avaarq;
+//     if(aletaq == varix || varix == 4){
+//         var ifthen = 5 + avaarq + oks;
+//     }
+//     return ifthen;
+// }
+
+// def test(){
+//     let c = 8;
+//     if (c == 4) {
+//         print(c + 8);
+//     } else {
+//         print(c + 6);
+//     }
+//     while(c > 0){
+//         c = c-1;
+//         print(c);
+//     }
+// }

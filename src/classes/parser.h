@@ -19,8 +19,8 @@
 class Parser {
 private:
     // MAIN PROGRAM DATA
-    // main root of the AST
-    Node program;
+    // AST
+    Node *program;
     // class that controls the operate stack
     Operate operate;
     // this map will store the context (scope) of the identifiers
@@ -39,10 +39,15 @@ private:
 public:
 
     //   MEMBER
-    Parser(){ program.setType("program"); };
+    Parser(){
+        program = operate.getProgramAST();
+    };
+    ~Parser(){
+        program = NULL;
+    }
 
     void parse(std::string t, std::string v, int l);
-    Node& getProgramAST();
+    Node* getProgramAST();
 };
 
 #endif // PARSER_H

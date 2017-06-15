@@ -5,27 +5,39 @@
 #include <stack>
 #include <initializer_list>
 
+#include "ast_types.h"
 #include "error.h"
 #include "node.h"
 
 class Operate {
 private:
+    // main AST node
+    Node *program;
+
     // this stack will hold the Node that we need to operate
     // prior to adding it to the other nodes
-    std::stack<Node> to_operate;
+    std::stack<Node*> to_operate;
 public:
     //   MEMBER
-    Operate(){};
+    Operate(){
+        to_operate.push(program = new Node(AST_PROGRAM));
+    }
+    ~Operate(){
+        delete program;
+    }
+
+    Node* getProgramAST();
 
     bool empty();
-    Node top();
+    Node* top();
 
-    void add(const char* val);
-    void add(std::string val);
-    void add(Node& n, Error& e);
-    void add(std::string val, std::initializer_list<char*> cond, Error& e);
+    Node* add(const char* val);
+    Node* add(std::string val);
+    Node* add(std::string val, std::initializer_list<char*> cond, Error& e);
 
-    Node pop();
+    Node* add_swap(Node *new_parent);
+
+    Node* pop();
 };
 
 #endif // OPERATE_H

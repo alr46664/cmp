@@ -1,6 +1,7 @@
 #ifndef AST_TYPES_H
 #define AST_TYPES_H
 
+#define AST_PROGRAM "program"
 #define AST_DECFUNC "decfunc"
 #define AST_DECVAR "decvar"
 #define AST_FUNCCALL "funccall"
