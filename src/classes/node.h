@@ -14,12 +14,13 @@ public:
     //   MEMBER
     Node();
     Node(std::string t);
-    Node(std::string t, std::initializer_list<Node> nodes);
 
     void setType(std::string t);
     std::string getType(void);
 
-    Node& add(Node &n);
+    Node& add();
+    Node& add(std::string t);
+    Node& add(Node& n);
 
     //    NON-MEMBER
     // (friend allows access to the

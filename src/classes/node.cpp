@@ -9,13 +9,6 @@ Node::Node(string t): Node(){
     this->setType(t);
 }
 
-Node::Node(string t, initializer_list<Node> nodes): Node(t) {
-    for (initializer_list<Node>::iterator it = nodes.begin(); it != nodes.end(); ++it){
-        Node temp = *it;
-        this->add(temp);
-    }
-}
-
 
 void Node::setType(string t){
     this->type = t;
@@ -25,9 +18,19 @@ string Node::getType(){
     return this->type;
 }
 
-Node& Node::add(Node &n){
+Node& Node::add(){
+    Node n;
     this->children.push_back(n);
-    return *this;
+    return this->children.back();
 }
 
+Node& Node::add(string t){
+    Node &n = this->add();
+    n.setType(t);
+    return n;
+}
 
+Node& Node::add(Node& n){
+    this->children.push_back(n);
+    return this->children.back();
+}

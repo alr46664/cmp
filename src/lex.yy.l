@@ -17,9 +17,11 @@ invalid [^a-zA-Z0-9\n\t _\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
 %}
 %%
 ("/"[^\/]) {
+    printf("ERROR \"%s\" %d\n", yytext, lines);
     fprintf(stderr, "ERROR: (Line %d) Unrecognized pattern \"%s\".\n\n", lines, yytext);
     exit(1);}
 {invalid} {
+    printf("ERROR \"%s\" %d\n", yytext, lines);
     fprintf(stderr, "ERROR: (Line %d) Invalid character \"%s\" found.\n\n", lines, yytext);
     exit(1);}
 {line} {
@@ -28,13 +30,13 @@ invalid [^a-zA-Z0-9\n\t _\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
     lines++;}
 ({non_printable}+|{comments}) {/* ignore nonprintable chars and comments */}
 (var|let|def|if|else|while|return|break|continue) {
-    printf("KEY \"%s\"\n", yytext);}
+    printf("KEY \"%s\" %d\n", yytext, lines);}
 {letter}(_|{alphanum})* {
-    printf("ID \"%s\"\n", yytext);}
+    printf("ID \"%s\" %d\n", yytext, lines);}
 {digits}+ {
-    printf("DEC \"%s\"\n", yytext);}
+    printf("DEC \"%s\" %d\n", yytext, lines);}
 ({symbols}|"<="|">="|"=="|"!="|"&&"|"||"|"!") {
-    printf("SYM \"%s\"\n", yytext);}
+    printf("SYM \"%s\" %d\n", yytext, lines);}
 %%
 //
 #define MIN_ARGC 2

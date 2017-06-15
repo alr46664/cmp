@@ -18,7 +18,7 @@ CPPFLAGS=-lm -std=c++11
 # OBJ_CPP_FILES := $(notdir $(CPP_FILES:.cpp=.o))
 
 # arquivos objeto de cada programa (lexico e codegen)
-OBJ_SYN=syn.ocpp classes/node.ocpp
+OBJ_SYN=syn.ocpp classes/node.ocpp classes/error.ocpp classes/operate.ocpp classes/parser.ocpp
 OBJ_LEX=lex.yy.o
 OBJ_GEN=gen.o
 
@@ -103,9 +103,9 @@ full_clean: clean
 
 # compile de .c em arquivo objeto .o
 %.o: %.c
-	$(GCC) -c -o $@ $^ $(CFLAGS)
+	$(GCC) -c -o $@ $< $(CFLAGS)
 
 # compile de .cpp em arquivo objeto .ocpp
-%.ocpp: %.cpp
-	$(GPP) -c -o $@ $^ $(CPPFLAGS)
+%.ocpp: %.cpp %.h
+	$(GPP) -c -o $@ $< $(CPPFLAGS)
 
