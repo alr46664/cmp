@@ -4,7 +4,6 @@
 
 // custom includes
 #include "syn.h" // defines
-#include "classes/node.h" // Node class
 #include "classes/parser.h" // Parser class
 
 

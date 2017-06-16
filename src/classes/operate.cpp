@@ -1,6 +1,7 @@
 #include "ast_types.h"
 #include "error.h"
 #include "operate.h"
+#include "utility.h"
 
 using namespace std;
 
@@ -16,28 +17,19 @@ Node* Operate::top(){
     return to_operate.top();
 }
 
-Node* Operate::add(const char* val){
-    return this->add(string(val));
-}
-
-Node* Operate::add(string val){
+Node* Operate::add(string token, string val){
     Error e(string("Could not add \"") + val + "\" to the AST tree", 0, ERR_UNK);
-    return this->add(val, {}, e);
+    return this->add(token, val, {}, {}, e);
 }
 
-Node* Operate::add(string val, initializer_list<char*> cond, Error& e){
+Node* Operate::add(string token, string val, initializer_list<char*> condToken, initializer_list<char*> condType, Error& e){
+    // check if the parent node has the conditions specified by conditions
     Node *n = to_operate.top();
-    bool res = (cond.begin() == cond.end());
-    for (initializer_list<char*>::iterator it = cond.begin(); it != cond.end(); it++){
-        // cout << *it << endl;
-        res |= (n->getType() == *it);
-        if (res) break;
-    }
-    // cout << res << endl;
-    if (!res){
+    if (!(Utility::check(n->getType(), condType) && Utility::check(n->getToken(), condToken))){
         e.print();
     }
-    to_operate.push(n->add(val));
+    // conditions satisfied, continue with the insertion
+    to_operate.push(n->add(token, val));
     return to_operate.top();
 }
 

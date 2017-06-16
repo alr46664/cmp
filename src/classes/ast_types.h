@@ -1,6 +1,13 @@
 #ifndef AST_TYPES_H
 #define AST_TYPES_H
 
+#define T_PROGRAM "PROGRAM"
+#define T_ID "ID"
+#define T_KEY "KEY"
+#define T_DEC "DEC"
+#define T_SYM "SYM"
+
+#define AST_PAREN "paren"
 #define AST_PROGRAM "program"
 #define AST_DECFUNC "decfunc"
 #define AST_DECVAR "decvar"

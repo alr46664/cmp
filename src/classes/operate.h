@@ -20,7 +20,7 @@ private:
 public:
     //   MEMBER
     Operate(){
-        to_operate.push(program = new Node(AST_PROGRAM));
+        to_operate.push(program = new Node(T_PROGRAM, AST_PROGRAM));
     }
     ~Operate(){
         delete program;
@@ -31,9 +31,8 @@ public:
     bool empty();
     Node* top();
 
-    Node* add(const char* val);
-    Node* add(std::string val);
-    Node* add(std::string val, std::initializer_list<char*> cond, Error& e);
+    Node* add(std::string token, std::string val);
+    Node* add(std::string token, std::string val, std::initializer_list<char*> condToken, std::initializer_list<char*> condType, Error& e);
 
     Node* add_swap(Node *new_parent);
 

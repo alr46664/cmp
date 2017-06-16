@@ -1,5 +1,9 @@
+// def main(c,q){
+//     return c+7;
+// }
+
 def main(c,q){
-    return c+7;
+    return c+7*q;
 }
 
 // def bla(c){

@@ -15,6 +15,9 @@
 // defines of the AST types
 #include "ast_types.h"
 
+#define P_INIT 0
+#define P_PARENLIST 1
+
 // THERE MUST BE ONLY ONE PARSER IN THE WHOLE PROGRAM
 class Parser {
 private:
@@ -26,6 +29,8 @@ private:
     // this map will store the context (scope) of the identifiers
     // (functions and variables) that the user has declared
     std::set<std::string> ids;
+    // armazene o estado anterior do parser
+    int state;
 
     // PRIVATE DATA
     std::string token, val;
@@ -41,6 +46,7 @@ public:
     //   MEMBER
     Parser(){
         program = operate.getProgramAST();
+        state = P_INIT;
     };
     ~Parser(){
         program = NULL;

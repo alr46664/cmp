@@ -5,8 +5,9 @@ using namespace std;
 
 Node::Node(){ /* dont do anything */}
 
-Node::Node(string t): Node(){
-    this->setType(t);
+Node::Node(string token, string type): Node(){
+    this->setToken(token);
+    this->setType(type);
 }
 
 Node::~Node(){
@@ -25,14 +26,22 @@ string Node::getType(){
     return this->type;
 }
 
+void Node::setToken(string t){
+    this->token = t;
+}
+string Node::getToken(void){
+    return this->token;
+}
+
 Node* Node::add(){
     this->children.push_back(new Node());
     return this->children.back();
 }
 
-Node* Node::add(string t){
+Node* Node::add(string token, string type){
     Node *n = this->add();
-    n->setType(t);
+    n->setType(type);
+    n->setToken(token);
     return n;
 }
 

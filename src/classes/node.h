@@ -8,19 +8,22 @@
 
 class Node {
 private:
-    std::string type;
+    std::string token,type;
     std::list<Node*> children;
 public:
     //   MEMBER
     Node();
-    Node(std::string t);
+    Node(std::string token, std::string type);
     ~Node();
 
     void setType(std::string t);
     std::string getType(void);
 
+    void setToken(std::string t);
+    std::string getToken(void);
+
     Node* add();
-    Node* add(std::string t);
+    Node* add(std::string token, std::string type);
     Node* add(Node* n);
 
     Node* top();
