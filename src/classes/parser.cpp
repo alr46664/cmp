@@ -105,11 +105,11 @@ void Parser::parse_sym(){
     } else if (val == "{"){
         operate.add(T_SYM, AST_BLOCK);
     } else if (val == "}"){
-        // retorne para fora do escope do bloco
+        // retorne para fora do escopo do bloco
         while (operate.top()->getType() != AST_BLOCK) operate.pop();
         Node *n = operate.pop();
-        // saia da declaracao da funcao ou while
-        if (n->getType() == AST_DECFUNC || n->getType() == AST_WHILE)
+        // saia da declaracao da funcao, while ou if
+        if (n->getType() == AST_DECFUNC || n->getType() == AST_WHILE || n->getType() == AST_IF)
             operate.pop();
     } else if (val == ","){
         operate.pop();
@@ -139,7 +139,7 @@ void Parser::parse_sym(){
     } else if (val == "-"){
         operate.add_swap(new Node(T_SYM, "-"));
     } else if (val == "!"){
-        operate.add_swap(new Node(T_SYM, "!"));
+        operate.add(T_SYM, "!");
     } else {
         e.print();
     }

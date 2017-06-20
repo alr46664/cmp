@@ -3,8 +3,9 @@
 // }
 
 def main(c,q){
-    c = q+7;
-    return c+7*q;
+//     c = q+7;
+//     return c+7+8;
+    return c+7*q+8/7;
 }
 
 // def main(c,q){

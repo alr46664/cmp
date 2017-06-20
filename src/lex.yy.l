@@ -16,10 +16,6 @@ invalid [^a-zA-Z0-9\n\t _\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
     int pos = 0;
 %}
 %%
-("/"[^\/]) {
-    printf("ERROR \"%s\" %d\n", yytext, lines);
-    fprintf(stderr, "ERROR: (Line %d) Unrecognized pattern \"%s\".\n\n", lines, yytext);
-    exit(1);}
 {invalid} {
     printf("ERROR \"%s\" %d\n", yytext, lines);
     fprintf(stderr, "ERROR: (Line %d) Invalid character \"%s\" found.\n\n", lines, yytext);
