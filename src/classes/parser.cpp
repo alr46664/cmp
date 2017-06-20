@@ -4,8 +4,10 @@
 
 using namespace std;
 
-Node* Parser::getProgramAST(){
-    return program;
+bool Parser::isExpr(){
+    // pegue o tipo do no imediatamente superior
+    string top_t = operate.top()->getType();
+    return (top_t != AST_RETURN && top_t != AST_ASSIGN && top_t != AST_PAREN && top_t != AST_ARGLIST);
 }
 
 void Parser::parse_id(){
@@ -16,8 +18,7 @@ void Parser::parse_id(){
     // pegue o no imediatamente superior
     Node *top = operate.top();
 
-    // FACA AS VERIFICACOES ANTES DE ADICIONAR A ID
-    operate.add(T_ID, val, {T_KEY, T_SYM}, {AST_DECFUNC, AST_DECVAR, AST_PARAMLIST, AST_ARGLIST, AST_RETURN, AST_ASSIGN, AST_PAREN, AST_SUM, AST_SUB, AST_MUL, AST_DIV, AST_LT, AST_GT, AST_GTE, AST_LTE, AST_EQ, AST_NEQ, AST_AND, AST_OR, AST_NOT}, e);
+    operate.add(T_ID, val);
 }
 
 void Parser::parse_key(){
@@ -66,8 +67,6 @@ void Parser::parse_dec(){
 void Parser::parse_sym(){
     // crie variavel erro para caso um error ocorra
     Error e(string("SYM \"") + val + "\" was not recognized. Valid values are ( [ { } ] ) , ; = + - * / < > <= >= == != && || !", line, ERR_SYM);
-    // pegue o no imediatamente superior
-    Node *top = operate.top();
 
     if (val == "("){
         Node *top = operate.top();
@@ -116,37 +115,34 @@ void Parser::parse_sym(){
         operate.pop();
     } else if (val == ";"){
         // retorne para o escope do bloco
-        while (operate.top()->getType() != AST_BLOCK) operate.pop();
+        while (operate.top()->getType() != AST_BLOCK && operate.top()->getType() != AST_PROGRAM)
+            operate.pop();
         // operate.pop();
     } else if (val == "="){
-    } else if (val == "+"){
-        // retorne ao no imediatamente superior
-        operate.add_swap(new Node(T_SYM, AST_SUM));
+    } else if (val == "+" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
+        // TODO: fazer associacao a esquerda
+        if (operate.top()->getToken() == T_ID){
+            Node *prev_top = operate.pop();
+            if (operate.top()->getToken() != T_SYM){
+                operate.push(prev_top);
+            }
+            operate.add_swap(new Node(T_SYM, val));
+        } else if (operate.top()->size_children() < 2) {
+            operate.add(T_SYM, val);
+        } else {
+            operate.add_swap(new Node(T_SYM, val));
+        }
     } else if (val == "-"){
-        operate.add_swap(new Node(T_SYM, AST_SUB));
-    } else if (val == "*"){
-        operate.add_swap(new Node(T_SYM, AST_MUL));
-    } else if (val == "/"){
-        operate.add_swap(new Node(T_SYM, AST_DIV));
-    } else if (val == "<"){
-        operate.add_swap(new Node(T_SYM, AST_LT));
-    } else if (val == ">"){
-        operate.add_swap(new Node(T_SYM, AST_GT));
-    } else if (val == "<="){
-        operate.add_swap(new Node(T_SYM, AST_LTE));
-    } else if (val == ">="){
-        operate.add_swap(new Node(T_SYM, AST_GTE));
-    } else if (val == "=="){
-        operate.add_swap(new Node(T_SYM, AST_EQ));
-    } else if (val == "!="){
-        operate.add_swap(new Node(T_SYM, AST_NEQ));
-    } else if (val == "&&"){
-        operate.add_swap(new Node(T_SYM, AST_AND));
-    } else if (val == "||"){
-        operate.add_swap(new Node(T_SYM, AST_OR));
+        operate.add_swap(new Node(T_SYM, "-"));
     } else if (val == "!"){
-        operate.add_swap(new Node(T_SYM, AST_NOT));
+        operate.add_swap(new Node(T_SYM, "!"));
+    } else {
+        e.print();
     }
+}
+
+Node* Parser::getProgramAST(){
+    return program;
 }
 
 void Parser::parse(string t, string v, int l){

@@ -36,6 +36,7 @@ public:
 
     Node* add_swap(Node *new_parent);
 
+    void push(Node *n);
     Node* pop();
 };
 

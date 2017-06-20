@@ -37,6 +37,8 @@ private:
     int line;
 
     // PRIVATE FUNCTIONS
+    bool isExpr();
+
     void parse_id();
     void parse_key();
     void parse_dec();

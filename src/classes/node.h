@@ -16,6 +16,8 @@ public:
     Node(std::string token, std::string type);
     ~Node();
 
+    int size_children();
+
     void setType(std::string t);
     std::string getType(void);
 
@@ -30,6 +32,25 @@ public:
     Node* bottom();
     Node* pop();
     Node* pop_front();
+
+    std::list<Node*>::iterator insert(std::list<Node*>::iterator i, Node *n);
+    std::list<Node*>::iterator remove(Node *n);
+
+    Node* operator[](int i){
+        if (i < children.size() && i > 0) {
+            // otimizacao do acesso a lista
+            if (i > (children.size() / 2)){
+                std::list<Node*>::reverse_iterator it = children.rbegin();
+                for (int j = i-1; j > 0; j--){it++;}
+                return *it;
+            } else {
+                std::list<Node*>::iterator it = children.begin();
+                for (int j = 0; j < i; j++){it++;}
+                return *it;
+            }
+        }
+        return NULL;
+    }
 
     //    NON-MEMBER
     // (friend allows access to the

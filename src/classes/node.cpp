@@ -18,6 +18,10 @@ Node::~Node(){
     }
 }
 
+int Node::size_children(){
+    return children.size();
+}
+
 void Node::setType(string t){
     this->type = t;
 }
@@ -68,4 +72,19 @@ Node* Node::pop(){
     Node *n = this->children.back();
     this->children.pop_back();
     return n;
+}
+
+list<Node*>::iterator Node::insert(list<Node*>::iterator i, Node *n){
+    return children.insert(i, n);
+}
+
+list<Node*>::iterator Node::remove(Node *n){
+    list<Node*>::iterator it = children.begin();
+    while (it != children.end() && *it != n){
+        it++;
+    }
+    if (it != children.end()){
+        return --(children.erase(it));
+    }
+    return children.end();
 }

@@ -22,18 +22,5 @@
 #define AST_WHILE "while"
 #define AST_BREAK "break"
 #define AST_CONTINUE "continue"
-#define AST_SUM "+"
-#define AST_SUB "-"
-#define AST_MUL "*"
-#define AST_DIV "/"
-#define AST_LT "<"
-#define AST_LTE "<="
-#define AST_GT ">"
-#define AST_GTE ">="
-#define AST_EQ "=="
-#define AST_NEQ "!="
-#define AST_AND "&&"
-#define AST_OR "||"
-#define AST_NOT "!"
 
 #endif // AST_TYPES_H
