@@ -6,7 +6,7 @@ GCC=gcc
 CFLAGS=-ggdb -g3 -lfl -lm
 
 GPP=g++
-CPPFLAGS=-ggdb  -g3 -lm -std=c++11
+CPPFLAGS=-Wno-write-strings -ggdb  -g3 -lm -std=c++11
 
 # VERIFICACAO DE LEAKS DE MEMORIA
 VALGRIND=valgrind

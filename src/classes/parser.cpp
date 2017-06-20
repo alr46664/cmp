@@ -119,11 +119,15 @@ void Parser::parse_sym(){
             operate.pop();
         // operate.pop();
     } else if (val == "="){
+
     } else if (val == "+" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
-        // TODO: fazer associacao a esquerda
-        if (operate.top()->getToken() == T_ID){
+        // TODO: fazer precedencia funcionar
+        if (operate.top()->getToken() != T_SYM){
             Node *prev_top = operate.pop();
-            if (operate.top()->getToken() != T_SYM){
+            // 2 casos para entrar no if:
+            //      1) primeiro operador da expressao
+            //      2) operador com maior precedencia
+            if (operate.top()->getToken() != T_SYM || precedence[val] > precedence[operate.top()->getType()]){
                 operate.push(prev_top);
             }
             operate.add_swap(new Node(T_SYM, val));

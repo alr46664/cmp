@@ -2,13 +2,13 @@
 //     return c+7;
 // }
 
-// def main(c,q){
-//     return c+7*q;
-// }
-
 def main(c,q){
-    return c*q+5;
+    return c+7*q;
 }
+
+// def main(c,q){
+//     return c*q+5;
+// }
 
 // def bla(c){
 //     return c+7;
