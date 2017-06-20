@@ -119,7 +119,7 @@ void Parser::parse_sym(){
             operate.pop();
         // operate.pop();
     } else if (val == "="){
-
+        operate.add_swap(new Node(T_SYM, AST_ASSIGN));
     } else if (val == "+" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
         // TODO: fazer precedencia funcionar
         if (operate.top()->getToken() != T_SYM){
@@ -127,7 +127,7 @@ void Parser::parse_sym(){
             // 2 casos para entrar no if:
             //      1) primeiro operador da expressao
             //      2) operador com maior precedencia
-            if (operate.top()->getToken() != T_SYM || precedence[val] > precedence[operate.top()->getType()]){
+            if (operate.top()->getToken() != T_SYM || operate.top()->getType() == AST_ASSIGN || precedence[val] > precedence[operate.top()->getType()]){
                 operate.push(prev_top);
             }
             operate.add_swap(new Node(T_SYM, val));

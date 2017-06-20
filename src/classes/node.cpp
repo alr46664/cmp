@@ -84,7 +84,7 @@ list<Node*>::iterator Node::remove(Node *n){
         it++;
     }
     if (it != children.end()){
-        return --(children.erase(it));
+        return (children.erase(it));
     }
     return children.end();
 }

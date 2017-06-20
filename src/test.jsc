@@ -3,6 +3,7 @@
 // }
 
 def main(c,q){
+    c = q+7;
     return c+7*q;
 }
 
