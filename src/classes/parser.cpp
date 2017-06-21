@@ -45,7 +45,7 @@ void Parser::parse_key(){
         // operate.add(AST_DECFUNC);
     } else if (val == "var" || val == "let"){
         Error err_var(string("KEY \"") + val + "\" can only be used within the \"block\" scope (root of the tree). In other word, you must define a variable inside a block (of a function, while loop, if statement) or as a global variable (outside all functions).", line, ERR_KEY);
-        operate.add(T_KEY, AST_DECVAR, {T_PROGRAM, T_KEY}, {AST_PROGRAM, AST_BLOCK}, err_var);
+        operate.add(T_KEY, AST_DECVAR);
     } else if (val == "if"){
         // toggle_state(P_IF);
         operate.add(T_KEY, AST_IF);

@@ -1,3 +1,5 @@
+// TODOS ESSES TESTES FUNCIONAM:
+
 // def main(c,q){
 //     return c+7;
 // }
@@ -23,23 +25,29 @@
 //     c = q+7;
 // }
 
+// def main(c,q){
+//     var l=8;
+// }
+
+// TESTES A SER REALIZADOS:
+
 def main(c,q){
-    var l;
-    l=8;
-//     return c+7+8;
-//    return c+7*q+8/7;
+    while(c){
+        while(q){
+            return c;
+        }
+    }
 
-    // if (q) {
-    //     return 40+12;
-    // }
-    // return 80+85;
+}
 
+// FUNCOES / RECURSOS A SEREM IMPLEMENTADAS(OS):
 
+// def main(c,q){
    // PRECISAMOS TESTAR ESSAS EXPRESSOES URGENTE!
    // return !c+8*9;
     // return q+5*8 > 8;
    // return c == 8*2 && q == 7+4;
-}
+// }
 
 // def main(c,q){
 //     return c*q+5;
