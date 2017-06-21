@@ -2,25 +2,30 @@
 //     return c+7;
 // }
 
+// def main(c,q){
+
+//     if (c+q) {
+//         return c+8;
+//     } else {
+//         return 10;
+//     }
+
+//     if(q){
+//         return q+c;
+//     }
+
+//     if (c) {
+//         return c;
+//     } else {
+//         return q;
+//     }
+
+//     c = q+7;
+// }
+
 def main(c,q){
-
-    if (c+q) {
-        return c+8;
-    } else {
-        return 10;
-    }
-
-    if(q){
-        return q+c;
-    }
-
-    if (c) {
-        return c;
-    } else {
-        return q;
-    }
-
-    c = q+7;
+    var l;
+    l=8;
 //     return c+7+8;
 //    return c+7*q+8/7;
 
