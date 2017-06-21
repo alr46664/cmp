@@ -3,9 +3,37 @@
 // }
 
 def main(c,q){
-//     c = q+7;
+
+    if (c+q) {
+        return c+8;
+    } else {
+        return 10;
+    }
+
+    if(q){
+        return q+c;
+    }
+
+    if (c) {
+        return c;
+    } else {
+        return q;
+    }
+
+    c = q+7;
 //     return c+7+8;
-    return c+7*q+8/7;
+//    return c+7*q+8/7;
+
+    // if (q) {
+    //     return 40+12;
+    // }
+    // return 80+85;
+
+
+   // PRECISAMOS TESTAR ESSAS EXPRESSOES URGENTE!
+   // return !c+8*9;
+    // return q+5*8 > 8;
+   // return c == 8*2 && q == 7+4;
 }
 
 // def main(c,q){

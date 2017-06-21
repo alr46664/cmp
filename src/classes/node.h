@@ -38,16 +38,9 @@ public:
 
     Node* operator[](int i){
         if (i < children.size() && i > 0) {
-            // otimizacao do acesso a lista
-            if (i > (children.size() / 2)){
-                std::list<Node*>::reverse_iterator it = children.rbegin();
-                for (int j = i-1; j > 0; j--){it++;}
-                return *it;
-            } else {
-                std::list<Node*>::iterator it = children.begin();
-                for (int j = 0; j < i; j++){it++;}
-                return *it;
-            }
+            std::list<Node*>::iterator it = children.begin();
+            for (int j = 0; j < i; j++){it++;}
+            return *it;
         }
         return NULL;
     }

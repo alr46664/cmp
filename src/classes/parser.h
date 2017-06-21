@@ -38,6 +38,10 @@ private:
     // PRIVATE FUNCTIONS
     bool isExpr();
 
+    void toggle_state(int s);
+    void untoggle_state(int s);
+    bool isStateActive(int s);
+
     void parse_id();
     void parse_key();
     void parse_dec();
