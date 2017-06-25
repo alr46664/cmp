@@ -32,7 +32,6 @@ public:
     Node* top();
 
     Node* add(std::string token, std::string val);
-    Node* add(std::string token, std::string val, std::initializer_list<char*> condToken, std::initializer_list<char*> condType, Error& e);
 
     Node* add_swap(Node *new_parent);
 

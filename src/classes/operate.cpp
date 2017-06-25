@@ -18,16 +18,8 @@ Node* Operate::top(){
 }
 
 Node* Operate::add(string token, string val){
-    Error e(string("Could not add \"") + val + "\" to the AST tree", 0, ERR_UNK);
-    return this->add(token, val, {}, {}, e);
-}
-
-Node* Operate::add(string token, string val, initializer_list<char*> condToken, initializer_list<char*> condType, Error& e){
     // check if the parent node has the conditions specified by conditions
     Node *n = to_operate.top();
-    if (!(Utility::check(n->getType(), condType) && Utility::check(n->getToken(), condToken))){
-        e.print();
-    }
     // conditions satisfied, continue with the insertion
     to_operate.push(n->add(token, val));
     return to_operate.top();

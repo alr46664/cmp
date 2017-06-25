@@ -5,7 +5,10 @@
 
 using namespace std;
 
-void Error::print(){
-    cerr << "\nERROR: (Line \"" << line << "\") - " << msg << endl << endl;
-    exit(code);
+const int Error::getCode(){
+    return code;
+}
+
+const string Error::what(){
+    return string("\nERROR: (Line \"") + to_string(line) + "\") - " + token + " - " + msg + "\n";
 }

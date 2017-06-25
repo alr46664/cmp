@@ -1,7 +1,7 @@
-// TODOS ESSES TESTES FUNCIONAM:
+// // TODOS ESSES TESTES FUNCIONAM:
 
 // def main(c,q){
-//     return c+7;
+//     return c+7+8;
 // }
 
 // def main(c,q){
@@ -39,18 +39,18 @@
 //          return 5;
 //     }
 
-// }
+// // }
 
 // def main(c,q){
-    // return q+5*8 > 8;
-   // return c == 8*2 && q == 7+4;
-   // return (c+5)*8 > 7;
-   // return c+5*8 > 7;
-   // return 5*8+c > 10;
+//     return q+5*8 > 8;
+//    return c == 8*2 && q == 7+4;
+//    return (c+5)*8 > 7;
+//    return c+5*8 > 7;
+//    return 5*8+c > 10;
 // }
 
 
-// begin - bloco de codigo
+// // begin - bloco de codigo
 
 // def main(c,q){
 //     return c*q+5;
@@ -60,11 +60,11 @@
 //     return c+7;
 // }
 
-// end - bloco de codigo
+// // end - bloco de codigo
 
 
 
-// begin - bloco de codigo
+// // begin - bloco de codigo
 
 // let varix = 7;
 
@@ -77,14 +77,14 @@
 //     return bla(4) * 7 + sd(4,6,8);
 // }
 
-// end - bloco de codigo
+// // end - bloco de codigo
 
 
 // def main(c,q){
-//     // return 5+7-1;
-//     // return 5-7;
-//     // return -5+7;
-//     // return -(5-7)+5;
+//     return 5+7-1;
+//     return 5-7;
+//     return -5+7;
+//     return -(5-7)+5;
 //     return bla(-4+5)+(-10)*(5+7);
 // }
 
