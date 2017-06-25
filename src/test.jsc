@@ -66,46 +66,33 @@
 
 // begin - bloco de codigo
 
-let varix = 7;
+// let varix = 7;
 
-def bla(x){
- return x+varix;
-}
+// def bla(x){
+//  return x+varix;
+// }
 
-def main(){
-    bla(varix);
-    return bla(4) * 7 + sd(4,6,8);
-}
+// def main(){
+//     bla(varix);
+//     return bla(4) * 7 + sd(4,6,8);
+// }
 
 // end - bloco de codigo
 
 
-// TESTES A SER REALIZADOS:
-
-// FUNCOES / RECURSOS A SEREM IMPLEMENTADAS(OS):
-
-//
-// def main(){
-//     var varix = 4;
-//     let aletaq = 8;
-//     var avaarq = 80;
-//     bla(varix);
-//     varix = aletaq + avaarq;
-//     if(aletaq == varix || varix == 4){
-//         var ifthen = 5 + avaarq + oks;
-//     }
-//     return ifthen;
+// def main(c,q){
+//     // return 5+7-1;
+//     // return 5-7;
+//     // return -5+7;
+//     // return -(5-7)+5;
+//     return bla(-4+5)+(-10)*(5+7);
 // }
 
-// def test(){
-//     let c = 8;
-//     if (c == 4) {
-//         print(c + 8);
-//     } else {
-//         print(c + 6);
-//     }
-//     while(c > 0){
-//         c = c-1;
-//         print(c);
+// def main(){
+//     var c, q;
+//     if (c == 4){
+//         while(c < 5) {
+//             c = c+1;
+//         }
 //     }
 // }

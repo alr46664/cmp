@@ -15,9 +15,6 @@
 // defines of the AST types
 #include "ast_types.h"
 
-#define P_INIT 0
-#define P_PARENLIST 1
-
 // THERE MUST BE ONLY ONE PARSER IN THE WHOLE PROGRAM
 class Parser {
 private:
@@ -27,9 +24,10 @@ private:
     // class that controls the operate stack
     Operate operate;
     // MAPA DE PRECEDENCIA
+        // operadores binarios
     std::map<std::string,int> precedence;
-    // armazene o estado anterior do parser
-    int state;
+        // operadores unarios
+    std::map<std::string,int> precedence_un;
 
     // PRIVATE DATA
     std::string token, val;
@@ -38,10 +36,7 @@ private:
     // PRIVATE FUNCTIONS
     bool isExpr();
 
-    void toggle_state(int s);
-    void untoggle_state(int s);
-    bool isStateActive(int s);
-
+    void parse_unary_op();
     void parse_binary_op();
 
     void parse_id();
@@ -53,16 +48,17 @@ public:
     //   MEMBER
     Parser(){
         program = operate.getProgramAST();
-        state = P_INIT;
         // declaracao das precedencias aqui
+            // op binarios
         precedence["||"] = 0;
         precedence["&&"] = 1;
         precedence["=="] = precedence["!="] = 2;
         precedence["<"] = precedence["<="] = precedence[">="] = precedence[">"] = 3;
         precedence["-"] = precedence["+"] = 4;
         precedence["*"] = precedence["/"] = 5;
-        precedence["!"] = 6;
-        precedence["u-"] = 7;
+            // op unarios
+        precedence_un["!"] = 6;
+        precedence_un["u-"] = 7;
     };
     ~Parser(){
         program = NULL;

@@ -10,27 +10,11 @@ bool Parser::isExpr(){
     return (top_t == AST_RETURN || top_t == AST_ASSIGN || top_t == AST_PAREN || top_t == AST_ARGLIST);
 }
 
-void Parser::untoggle_state(int s){
-    state &= ~s;
-}
-
-void Parser::toggle_state(int s){
-    state |= s;
-}
-
-bool Parser::isStateActive(int s){
-    return (state & s) != P_INIT;
+void Parser::parse_unary_op(){
+    operate.add(T_SYM, val);
 }
 
 void Parser::parse_binary_op(){
-    // Node *prev_top = operate.pop();
-    // // 2 casos para entrar no if (recursao a direita / maior precedencia):
-    // //      1) primeiro operador da expressao (!= T_SYM || == AST_ASSIGN)
-    // //      2) operador com maior precedencia (precedence[val] > precedence[top])
-    // if (operate.top()->getToken() != T_SYM || operate.top()->getType() == AST_ASSIGN || precedence[val] > precedence[operate.top()->getType()]){
-    //     operate.push(prev_top);
-    // }
-
     // iremos entrar pelo menos 1x no while
     Node *right = NULL;
     while (!isExpr()){
@@ -52,8 +36,6 @@ void Parser::parse_binary_op(){
 }
 
 void Parser::parse_id(){
-    // TODO: TO REMOVE (debug)
-    cout << "ID found" << endl;
     // crie variavel erro para caso um error ocorra
     Error e(string("ID \"") + val + "\" can only be used in declarations of variables and functions, as well as in assigns, expressions and function calls.", line, ERR_ID);
     // pegue o no imediatamente superior
@@ -76,7 +58,6 @@ void Parser::parse_key(){
         Error err_var(string("KEY \"") + val + "\" can only be used within the \"block\" scope (root of the tree). In other word, you must define a variable inside a block (of a function, while loop, if statement) or as a global variable (outside all functions).", line, ERR_KEY);
         operate.add(T_KEY, AST_DECVAR);
     } else if (val == "if"){
-        // toggle_state(P_IF);
         operate.add(T_KEY, AST_IF);
     } else if (val == "else"){
         // retorne o ultimo if para o stack
@@ -103,14 +84,12 @@ void Parser::parse_dec(){
 
 void Parser::parse_sym(){
     // crie variavel erro para caso um error ocorra
-    Error e(string("SYM \"") + val + "\" was not recognized. Valid values are ( [ { } ] ) , ; = + - * / < > <= >= == != && || !", line, ERR_SYM);
+    Error e(string("SYM \"") + val + "\" was not recognized. Valid values are ( { } ) , ; = + - * / < > <= >= == != && || !", line, ERR_SYM);
 
     if (val == "("){
         Node *top_id = operate.top();
         // verificacao se arglist ou paramlist
         if (top_id->getToken() == T_ID){
-            // estado que controla o fechamento dos parenteses
-            toggle_state(P_PARENLIST);
             // sabemos que estamos numa arglist ou paramlist
             operate.pop();
             Node *prev_top_id = operate.top();
@@ -130,14 +109,24 @@ void Parser::parse_sym(){
             operate.add(T_SYM, AST_PAREN);
         }
     } else if (val == ")"){
-        if (isStateActive(P_PARENLIST)){
-            // retorne para a id da funccall ou deffunc
-            untoggle_state(P_PARENLIST);
+        // retorne para o no que ativou o parentese
+        while(operate.top()->getType() != AST_PAREN && operate.top()->getType() != AST_ARGLIST && operate.top()->getType() != AST_DECFUNC){
             operate.pop();
-            operate.pop();
-        } else {
-            // retorne para o no ast_paren
-            while(operate.top()->getType() != AST_PAREN) operate.pop();
+        }
+        // verifique se estamos em um arglist, se sim
+        // retorne o stack para a function call
+        if (operate.top()->getType() == AST_ARGLIST){
+            while(operate.top()->getType() != AST_FUNCCALL) {
+                operate.pop();
+            }
+        } else if (operate.top()->getType() == AST_PAREN) {
+            // verifique se o paren pertence a um no de operador unario, if ou while,
+            // se ele nao pertencer, mantenha paren no stack,
+            // do contrario, devemos retornar para o no pai de paren
+            Node *paren = operate.pop();
+            if (operate.top()->getType() != AST_IF && operate.top()->getType() != AST_WHILE && precedence_un.find(operate.top()->getType()) == precedence_un.end()){
+                operate.push(paren);
+            }
         }
     } else if (val == "{"){
         operate.add(T_SYM, AST_BLOCK);
@@ -157,9 +146,15 @@ void Parser::parse_sym(){
             operate.pop();
     } else if (val == "="){
         operate.add_swap(new Node(T_SYM, AST_ASSIGN));
-    } else if (val == "+" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
+    } else if (val == "+" || val == "-" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
         Node *top = operate.top();
-        if (precedence.find(top->getType()) == precedence.end()){
+        // // verifique se estamos processando operadores unarios
+        if (val == "-" && isExpr()){
+            // o operador val é unario pois o que o antecede é um
+            // operador de expressao)
+            val = "u-";
+            parse_unary_op();
+        } else if (precedence.find(top->getType()) == precedence.end()){
             // sabemos que o que esta no topo do stack nao é um operador
             // binario (logo podemos tratar a precedencia na funcao abaixo)
             parse_binary_op();
@@ -175,12 +170,8 @@ void Parser::parse_sym(){
             operate.push((*top)[1]);
             parse_binary_op();
         }
-    } else if (val == "-"){
-        // TODO
-        operate.add_swap(new Node(T_SYM, "-"));
     } else if (val == "!"){
-        // TODO
-        operate.add(T_SYM, "!");
+        parse_unary_op();
     } else {
         e.print();
     }
@@ -198,13 +189,6 @@ void Parser::parse(string t, string v, int l){
     // TODO remove
     cout << "\n\tPROGRAM (t: \"" << t << "\" - v: \"" << v << "\" - l: " << l <<
         " - STACK: " << *operate.top()  << "): \n\n" << *getProgramAST() << "\n\n";
-    // CHECK STATE HERE
-    // if (operate.top()->getType() == AST_IF && isStateActive(P_ELSE)){
-    //     if (val != AST_ELSE){
-    //         untoggle_state(P_ELSE);
-    //         operate.pop();
-    //     }
-    // }
     // check for the token type
     if (token == T_ID) {
         parse_id();
