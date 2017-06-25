@@ -38,8 +38,11 @@ void Operate::push(Node *n){
 }
 
 Node* Operate::pop(){
-    Node *n = to_operate.top();
-    to_operate.pop();
+    Node *n = NULL;
+    if (!to_operate.empty()){
+        n = to_operate.top();
+        to_operate.pop();
+    }
     return n;
 }
 

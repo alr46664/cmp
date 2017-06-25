@@ -7,7 +7,7 @@ using namespace std;
 bool Parser::isExpr(){
     // pegue o tipo do no imediatamente superior
     string top_t = operate.top()->getType();
-    return (top_t != AST_RETURN && top_t != AST_ASSIGN && top_t != AST_PAREN && top_t != AST_ARGLIST);
+    return (top_t == AST_RETURN || top_t == AST_ASSIGN || top_t == AST_PAREN || top_t == AST_ARGLIST);
 }
 
 void Parser::untoggle_state(int s){
@@ -20,6 +20,35 @@ void Parser::toggle_state(int s){
 
 bool Parser::isStateActive(int s){
     return (state & s) != P_INIT;
+}
+
+void Parser::parse_binary_op(){
+    // Node *prev_top = operate.pop();
+    // // 2 casos para entrar no if (recursao a direita / maior precedencia):
+    // //      1) primeiro operador da expressao (!= T_SYM || == AST_ASSIGN)
+    // //      2) operador com maior precedencia (precedence[val] > precedence[top])
+    // if (operate.top()->getToken() != T_SYM || operate.top()->getType() == AST_ASSIGN || precedence[val] > precedence[operate.top()->getType()]){
+    //     operate.push(prev_top);
+    // }
+
+    // iremos entrar pelo menos 1x no while
+    Node *right = NULL;
+    while (!isExpr()){
+        right = operate.pop();
+        string prev_op_type = operate.top()->getType();
+        // se existir precedencia E a precedencia de val > precedencia de op,
+        // entao adicionar novo nó (val) a direita
+        if (precedence.find(prev_op_type) != precedence.end() && precedence[val] > precedence[prev_op_type]){
+            break;
+        }
+    }
+    // if de protecao (right nunca deve ser NULL, mas nao custa
+    // se precaver :D )
+    if (right != NULL){
+        operate.push(right);
+    }
+    // adicionar novo no val
+    operate.add_swap(new Node(T_SYM, val));
 }
 
 void Parser::parse_id(){
@@ -53,16 +82,12 @@ void Parser::parse_key(){
         // retorne o ultimo if para o stack
         operate.push(top->top());
     } else if (val == "while"){
-        // TODO restrict usage
         operate.add(T_KEY, AST_WHILE);
     } else if (val == "return"){
-        // TODO restrict usage
         operate.add(T_KEY, AST_RETURN);
     } else if (val == "break"){
-        // TODO restrict usage
         operate.add(T_KEY, AST_BREAK);
     } else if (val == "continue"){
-        // TODO restrict usage
         operate.add(T_KEY, AST_CONTINUE);
     } else {
         e.print();
@@ -81,21 +106,24 @@ void Parser::parse_sym(){
     Error e(string("SYM \"") + val + "\" was not recognized. Valid values are ( [ { } ] ) , ; = + - * / < > <= >= == != && || !", line, ERR_SYM);
 
     if (val == "("){
-        Node *top = operate.top();
+        Node *top_id = operate.top();
         // verificacao se arglist ou paramlist
-        if (Utility::check(top->getToken(), {T_ID})){
+        if (top_id->getToken() == T_ID){
+            // estado que controla o fechamento dos parenteses
             toggle_state(P_PARENLIST);
             // sabemos que estamos numa arglist ou paramlist
             operate.pop();
-            Node *new_top = operate.top();
-            cout << *new_top << endl;
-            if (new_top->getType() == AST_DECFUNC){
+            Node *prev_top_id = operate.top();
+            if (prev_top_id->getType() == AST_DECFUNC){
+                // sabemos que estamos numa declaracao de funcao (decfunc)
+                // logo devemos adcionar o no paramlist
                 operate.add(T_SYM, AST_PARAMLIST);
-            } else if (new_top->getType() == AST_FUNCCALL) {
-                operate.add(T_SYM, AST_ARGLIST);
             } else {
-                Error e1(string("SYM \"") + val + "\" needs a function declaration \"def\" or function call to be associated with.", line, ERR_SYM);
-                e1.print();
+                // sabemos que caso nao seja uma declaracao  de variavel,
+                // temos uma chamada de funcao
+                operate.push(top_id);
+                operate.add_swap(new Node(T_KEY, AST_FUNCCALL));
+                operate.add(T_SYM, AST_ARGLIST);
             }
         } else {
             // sabemos que estamos tratando de uma expressao
@@ -108,12 +136,9 @@ void Parser::parse_sym(){
             operate.pop();
             operate.pop();
         } else {
-            // retorne para o no imediatamente superior ao ast_paren
+            // retorne para o no ast_paren
             while(operate.top()->getType() != AST_PAREN) operate.pop();
-            operate.pop();
         }
-    } else if (val == "["){
-    } else if (val == "]"){
     } else if (val == "{"){
         operate.add(T_SYM, AST_BLOCK);
     } else if (val == "}"){
@@ -124,58 +149,37 @@ void Parser::parse_sym(){
         Node *n = operate.top();
         if (n->getType() == AST_DECFUNC || n->getType() == AST_WHILE || n->getType() == AST_IF)
             operate.pop();
-        // se o estado if estive ativado, troque pelo estado else
-        // if (isStateActive(P_IF)){
-        //     untoggle_state(P_IF);
-        //     toggle_state(P_ELSE);
-        // } else if (isStateActive(P_ELSE)) {
-        //     untoggle_state(P_ELSE);
-        //     operate.pop();
-        // }
     } else if (val == ","){
         operate.pop();
     } else if (val == ";"){
         // retorne para o escope do bloco
         while (operate.top()->getType() != AST_BLOCK && operate.top()->getType() != AST_PROGRAM)
             operate.pop();
-        // operate.pop();
     } else if (val == "="){
         operate.add_swap(new Node(T_SYM, AST_ASSIGN));
     } else if (val == "+" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
-        if (operate.top()->getToken() != T_SYM){
-            // TODO: FIX PRECEDENCE PROBLEM AND LEFT ASSOCIATIVENESS
-            Node *prev_top = operate.pop();
-            // 2 casos para entrar no if:
-            //      1) primeiro operador da expressao
-            //      2) operador com maior precedencia
-            if (operate.top()->getToken() != T_SYM || operate.top()->getType() == AST_ASSIGN || precedence[val] > precedence[operate.top()->getType()]){
-                operate.push(prev_top);
-            }
-            // if (operate.top()->getToken() != T_SYM || operate.top()->getType() == AST_ASSIGN){
-            //     operate.push(prev_top);
-            // } else {
-            //     Node *op;
-            //     while (!isExpr()){
-            //         op = operate.pop();
-            //         if (precedence.find(op->getType()) != precedence.end() && precedence[val] > precedence[op->getType()]){
-            //             break;
-            //         }
-            //     }
-            //     operate.push(op);
-            // }
-            operate.add_swap(new Node(T_SYM, val));
-        } else if (operate.top()->size_children() < 2) {
+        Node *top = operate.top();
+        if (precedence.find(top->getType()) == precedence.end()){
+            // sabemos que o que esta no topo do stack nao é um operador
+            // binario (logo podemos tratar a precedencia na funcao abaixo)
+            parse_binary_op();
+        } else if (top->size_children() < 2) {
+            // sabemos que temos um operador binario no topo do stack
+            // e sabemos que ele nao possui 2 operandos, logo adicione
+            // a direita o operando
             operate.add(T_SYM, val);
         } else {
-            operate.add_swap(new Node(T_SYM, val));
+            // temos um operador binario com todos os operandos ja add,
+            // logo devemos adicionar o ultimo operando desse operador para
+            // que possamos tratar a precedencia na funcao abaixo
+            operate.push((*top)[1]);
+            parse_binary_op();
         }
-    // } else if (){
-        // TODO
-    // } else if (){
-    //     // TODO
     } else if (val == "-"){
+        // TODO
         operate.add_swap(new Node(T_SYM, "-"));
     } else if (val == "!"){
+        // TODO
         operate.add(T_SYM, "!");
     } else {
         e.print();

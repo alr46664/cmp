@@ -29,25 +29,28 @@
 //     var l=8;
 // }
 
-// TESTES A SER REALIZADOS:
+// def main(c,q){
+//     while(c){
+//         while(q){
+//             return c;
+//         }
+//     }
+//     while(c+q){
+//          return 5;
+//     }
 
-def main(c,q){
-    while(c){
-        while(q){
-            return c;
-        }
-    }
-
-}
-
-// FUNCOES / RECURSOS A SEREM IMPLEMENTADAS(OS):
+// }
 
 // def main(c,q){
-   // PRECISAMOS TESTAR ESSAS EXPRESSOES URGENTE!
-   // return !c+8*9;
     // return q+5*8 > 8;
    // return c == 8*2 && q == 7+4;
+   // return (c+5)*8 > 7;
+   // return c+5*8 > 7;
+   // return 5*8+c > 10;
 // }
+
+
+// begin - bloco de codigo
 
 // def main(c,q){
 //     return c*q+5;
@@ -56,6 +59,31 @@ def main(c,q){
 // def bla(c){
 //     return c+7;
 // }
+
+// end - bloco de codigo
+
+
+
+// begin - bloco de codigo
+
+let varix = 7;
+
+def bla(x){
+ return x+varix;
+}
+
+def main(){
+    bla(varix);
+    return bla(4) * 7 + sd(4,6,8);
+}
+
+// end - bloco de codigo
+
+
+// TESTES A SER REALIZADOS:
+
+// FUNCOES / RECURSOS A SEREM IMPLEMENTADAS(OS):
+
 //
 // def main(){
 //     var varix = 4;

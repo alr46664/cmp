@@ -63,14 +63,20 @@ Node* Node::bottom(){
 }
 
 Node* Node::pop_front(){
-    Node *n = this->children.front();
-    this->children.pop_front();
+    Node *n = NULL;
+    if (!children.empty()){
+        n = this->children.front();
+        this->children.pop_front();
+    }
     return n;
 }
 
 Node* Node::pop(){
-    Node *n = this->children.back();
-    this->children.pop_back();
+    Node *n = NULL;
+    if (!children.empty()){
+        n = this->children.back();
+        this->children.pop_back();
+    }
     return n;
 }
 

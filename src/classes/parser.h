@@ -42,6 +42,8 @@ private:
     void untoggle_state(int s);
     bool isStateActive(int s);
 
+    void parse_binary_op();
+
     void parse_id();
     void parse_key();
     void parse_dec();

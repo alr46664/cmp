@@ -2,11 +2,11 @@
 digits [0-9]
 letter [a-zA-Z]
 alphanum [a-zA-Z0-9]
-symbols [\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>]
+symbols [\(\{\}\)\,\;\=\+\-\*\/\<\>]
 line [\n]
 non_printable [\t ]
 comments ("//".*)
-invalid [^a-zA-Z0-9\n\t _\(\{\[\]\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
+invalid [^a-zA-Z0-9\n\t _\(\{\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
 
 %{
     #include <string.h>
