@@ -13,7 +13,7 @@ bool Parser::isExpr(){
 }
 
 void Parser::parse_unary_op(){
-    operate.add(T_SYM, val);
+    operate.add(T_SYM, val, line);
 }
 
 void Parser::parse_binary_op(){
@@ -37,11 +37,11 @@ void Parser::parse_binary_op(){
         throw Error("Could not process binary operator \"" + val + "\". A binary operator must be used inside a valid expression field and needs 2 operands. For some reason, there was an error (Right operator is EMPTY).", token, line, ERR_UNK);
     operate.push(right);
     // adicionar novo no val
-    operate.add_swap(new Node(T_SYM, val));
+    operate.add_swap(new Node(T_SYM, val, line));
 }
 
 void Parser::parse_id(){
-    operate.add(T_ID, val);
+    operate.add(T_ID, val, line);
 }
 
 void Parser::parse_key(){
@@ -49,30 +49,29 @@ void Parser::parse_key(){
     Node *top = operate.top();
 
     if (val == "def"){
-        operate.add(T_KEY, AST_DECFUNC);
-        // operate.add(AST_DECFUNC);
+        operate.add(T_KEY, AST_DECFUNC, line);
     } else if (val == "var" || val == "let"){
-        operate.add(T_KEY, AST_DECVAR);
+        operate.add(T_KEY, AST_DECVAR, line);
     } else if (val == "if"){
-        operate.add(T_KEY, AST_IF);
+        operate.add(T_KEY, AST_IF, line);
     } else if (val == "else"){
         // retorne o ultimo if para o stack
         operate.push(top->top());
     } else if (val == "while"){
-        operate.add(T_KEY, AST_WHILE);
+        operate.add(T_KEY, AST_WHILE, line);
     } else if (val == "return"){
-        operate.add(T_KEY, AST_RETURN);
+        operate.add(T_KEY, AST_RETURN, line);
     } else if (val == "break"){
-        operate.add(T_KEY, AST_BREAK);
+        operate.add(T_KEY, AST_BREAK, line);
     } else if (val == "continue"){
-        operate.add(T_KEY, AST_CONTINUE);
+        operate.add(T_KEY, AST_CONTINUE, line);
     } else
         throw Error(string("KEY \"") + val + "\" not identified.", token, line, ERR_KEY);
 }
 
 void Parser::parse_dec(){
     // adicione dec
-    operate.add(T_DEC, val);
+    operate.add(T_DEC, val, line);
 }
 
 void Parser::parse_sym(){
@@ -89,17 +88,17 @@ void Parser::parse_sym(){
             if (prev_top_id->getType() == AST_DECFUNC){
                 // sabemos que estamos numa declaracao de funcao (decfunc)
                 // logo devemos adcionar o no paramlist
-                operate.add(T_SYM, AST_PARAMLIST);
+                operate.add(T_SYM, AST_PARAMLIST, line);
             } else {
                 // sabemos que caso nao seja uma declaracao  de variavel,
                 // temos uma chamada de funcao
                 operate.push(top_id);
-                operate.add_swap(new Node(T_KEY, AST_FUNCCALL));
-                operate.add(T_SYM, AST_ARGLIST);
+                operate.add_swap(new Node(T_KEY, AST_FUNCCALL, line));
+                operate.add(T_SYM, AST_ARGLIST, line);
             }
         } else {
             // sabemos que estamos tratando de uma expressao
-            operate.add(T_SYM, AST_PAREN);
+            operate.add(T_SYM, AST_PAREN, line);
         }
     } else if (val == ")"){
         // verificacao de erro
@@ -134,7 +133,7 @@ void Parser::parse_sym(){
             }
         }
     } else if (val == "{"){
-        operate.add(T_SYM, AST_BLOCK);
+        operate.add(T_SYM, AST_BLOCK, line);
     } else if (val == "}"){
         // verificacao de erro
         if (operate.empty())
@@ -174,7 +173,7 @@ void Parser::parse_sym(){
         // verificacao de erro
         if (operate.empty())
             throw Error("Could not process symbol \"" + val + "\". The assign operator needs a variable in its right side to work correctly.", token, line, ERR_SYM);
-        operate.add_swap(new Node(T_SYM, AST_ASSIGN));
+        operate.add_swap(new Node(T_SYM, AST_ASSIGN, line));
     } else if (val == "+" || val == "-" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
         // verificacao de erro
         if (operate.empty())
@@ -194,7 +193,7 @@ void Parser::parse_sym(){
             // sabemos que temos um operador binario no topo do stack
             // e sabemos que ele nao possui 2 operandos, logo adicione
             // a direita o operando
-            operate.add(T_SYM, val);
+            operate.add(T_SYM, val, line);
         } else {
             // temos um operador binario com todos os operandos ja add,
             // logo devemos adicionar o ultimo operando desse operador para
@@ -208,18 +207,14 @@ void Parser::parse_sym(){
         throw Error(string("SYM \"") + val + "\" not identified.", token, line, ERR_SYM);
 }
 
-Node* Parser::getProgramAST(){
-    return program;
-}
-
 void Parser::parse(string t, string v, int l){
     // define the member variables
     token = t;
     val = v;
     line = l;
-    // TODO remove
-    cout << "\n\tPROGRAM (t: \"" << t << "\" - v: \"" << v << "\" - l: " << l <<
-        " - STACK: " << *operate.top()  << "): \n\n" << *getProgramAST() << "\n\n";
+    // // debugging print
+    // cout << "\n\tPROGRAM (t: \"" << t << "\" - v: \"" << v << "\" - l: " << l <<
+        // " - STACK: " << *operate.top()  << "): \n\n" << *getProgramAST() << "\n\n";
     // check for the token type
     if (token == T_ID) {
         parse_id();
@@ -231,4 +226,14 @@ void Parser::parse(string t, string v, int l){
         parse_sym();
     } else
         throw Error(string("Unidentified token \"") + val + "\" could not be parsed.", token, line, ERR_TOKEN_UNDEF);
+}
+
+Node* Parser::getProgramAST(){
+    return program;
+}
+
+// reduce memory usage of the c++ compiler
+void Parser::clear(){
+    token = val = "";
+    operate.clear();
 }

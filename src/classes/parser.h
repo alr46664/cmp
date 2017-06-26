@@ -60,10 +60,8 @@ public:
         precedence_un["!"] = 6;
         precedence_un["u-"] = 7;
     };
-    ~Parser(){
-        program = NULL;
-    }
 
+    void clear();
     void parse(std::string t, std::string v, int l);
     Node* getProgramAST();
 };

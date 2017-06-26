@@ -17,11 +17,15 @@ Node* Operate::top(){
     return to_operate.top();
 }
 
-Node* Operate::add(string token, string val){
+void Operate::clear(){
+    while (pop() != NULL) {}
+}
+
+Node* Operate::add(string token, string val, int line){
     // check if the parent node has the conditions specified by conditions
     Node *n = to_operate.top();
     // conditions satisfied, continue with the insertion
-    to_operate.push(n->add(token, val));
+    to_operate.push(n->add(token, val, line));
     return to_operate.top();
 }
 

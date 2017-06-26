@@ -3,11 +3,15 @@
 using namespace std;
 
 
-Node::Node(){ /* dont do anything */}
+Node::Node(){
+    token = type = "";
+    line = 0;
+}
 
-Node::Node(string token, string type): Node(){
+Node::Node(string token, string type, int line): Node(){
     this->setToken(token);
     this->setType(type);
+    this->setLine(line);
 }
 
 Node::~Node(){
@@ -33,8 +37,15 @@ string Node::getType(){
 void Node::setToken(string t){
     this->token = t;
 }
-string Node::getToken(void){
+string Node::getToken(){
     return this->token;
+}
+
+void Node::setLine(int l){
+    this->line = l;
+}
+int Node::getLine(){
+    return this->line;
 }
 
 Node* Node::add(){
@@ -42,10 +53,11 @@ Node* Node::add(){
     return this->children.back();
 }
 
-Node* Node::add(string token, string type){
+Node* Node::add(string token, string type, int line){
     Node *n = this->add();
     n->setType(type);
     n->setToken(token);
+    n->setLine(line);
     return n;
 }
 

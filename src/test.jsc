@@ -29,17 +29,16 @@
 //     var l=8;
 // }
 
-// def main(c,q){
-//     while(c){
-//         while(q){
-//             return c;
-//         }
-//     }
-//     while(c+q){
-//          return 5;
-//     }
-
-// // }
+def main(c,q){
+    while(c){
+        while(q){
+            return c;
+        }
+    }
+    while(c+q){
+         return 5;
+    }
+}
 
 // def main(c,q){
 //     return q+5*8 > 8;

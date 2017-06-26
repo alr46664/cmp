@@ -6,30 +6,41 @@
 // custom includes
 #include "syn.h" // defines
 #include "classes/parser.h" // Parser class
+#include "classes/semantical.h" // Semantical class
 #include "classes/error.h" // error exception class
 
 using namespace std;
 
+// create the single parser that the whole program will use
+Parser p;
+// create the semantical analiser
+Semantical s(p.getProgramAST());
+
+void run_sintatical_analiser(){
+    // store the whole stdin / cin line
+    int line;
+    string token, val, input;
+    // read until EOF
+    while(getline(cin, input)){
+        size_t space1 = input.find_first_of(' ');
+        size_t space2 = input.find_last_of(' ');
+        if (space1 != string::npos && space2 != string::npos){
+            token = input.substr(0, space1);
+            val = input.substr(space1+2, space2-space1-3);
+            line = atoi(input.substr(space2, string::npos).c_str());
+        }
+        // process token and val
+        p.parse(token, val, line);
+    }
+    // release unneeded memory from parser
+    p.clear();
+}
+
 int main(int argc, char **argv) {
     try {
-        // create the single parser that the whole program will use
-        Parser p;
-        // store the whole stdin / cin line
-        int line;
-        string token, val;
-        string input;
-        // read until EOF
-        while(getline(cin, input)){
-            size_t space1 = input.find_first_of(' ');
-            size_t space2 = input.find_last_of(' ');
-            if (space1 != string::npos && space2 != string::npos){
-                token = input.substr(0, space1);
-                val = input.substr(space1+2, space2-space1-3);
-                line = atoi(input.substr(space2, string::npos).c_str());
-            }
-            // process token and val
-            p.parse(token, val, line);
-        }
+        run_sintatical_analiser();
+        // run the semantical analiser
+        s.run();
         // print the program AST tree
         cout << *p.getProgramAST() << endl;
         return 0;

@@ -22,7 +22,7 @@ VALGRIND_ARGS=--leak-check=full --show-leak-kinds=all -v
 # OBJ_CPP_FILES := $(notdir $(CPP_FILES:.cpp=.o))
 
 # arquivos objeto de cada programa (lexico e codegen)
-OBJ_SYN=syn.ocpp classes/node.ocpp classes/error.ocpp classes/operate.ocpp classes/parser.ocpp
+OBJ_SYN=syn.ocpp classes/node.ocpp classes/error.ocpp classes/operate.ocpp classes/parser.ocpp classes/semantical.ocpp
 OBJ_LEX=lex.yy.o
 OBJ_GEN=gen.o
 
