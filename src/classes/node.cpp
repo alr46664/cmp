@@ -22,6 +22,22 @@ Node::~Node(){
     }
 }
 
+list<Node*>::iterator Node::begin(){
+    return children.begin();
+}
+
+list<Node*>::iterator Node::end(){
+    return children.end();
+}
+
+list<Node*>::reverse_iterator Node::rbegin(){
+    return children.rbegin();
+}
+
+list<Node*>::reverse_iterator Node::rend(){
+    return children.rend();
+}
+
 int Node::size_children(){
     return children.size();
 }
@@ -92,8 +108,16 @@ Node* Node::pop(){
     return n;
 }
 
+void Node::clear(){
+    children.clear();
+}
+
 list<Node*>::iterator Node::insert(list<Node*>::iterator i, Node *n){
     return children.insert(i, n);
+}
+
+list<Node*>::iterator Node::remove(list<Node*>::iterator it){
+    return children.erase(it);
 }
 
 list<Node*>::iterator Node::remove(Node *n){
@@ -102,7 +126,7 @@ list<Node*>::iterator Node::remove(Node *n){
         it++;
     }
     if (it != children.end()){
-        return (children.erase(it));
+        return this->remove(it);
     }
     return children.end();
 }

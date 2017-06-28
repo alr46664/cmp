@@ -1,16 +1,7 @@
 
-#include "error.h" // error class
 #include "parser.h" // parser class
 
 using namespace std;
-
-bool Parser::isExpr(){
-    if (operate.empty())
-        throw Error("Could not process \"" + val + "\". We could not check if we are in an expression field because the Stack is EMPTY.", token, line, ERR_UNK);
-    // pegue o tipo do no imediatamente superior
-    string top_t = operate.top()->getType();
-    return (top_t == AST_RETURN || top_t == AST_ASSIGN || top_t == AST_PAREN || top_t == AST_ARGLIST);
-}
 
 void Parser::parse_unary_op(){
     operate.add(T_SYM, val, line);
@@ -19,10 +10,7 @@ void Parser::parse_unary_op(){
 void Parser::parse_binary_op(){
     // iremos entrar pelo menos 1x no while
     Node *right = operate.pop();
-    while (!isExpr()){
-        // verificacao de erro
-        if (operate.empty())
-            throw Error("Could not process binary operator \"" + val + "\". A binary operator must be used inside a valid expression field and needs 2 operands. For some reason, there was an error (Stack is EMPTY). You most likely is not using the operator inside an expression.", token, line, ERR_UNK);
+    while ( !operate.empty() && !Utility::isExpr( operate.top()->getType() ) ){
         string prev_op_type = operate.top()->getType();
         // se existir precedencia E a precedencia de val > precedencia de op,
         // entao adicionar novo nó (val) a direita
@@ -31,10 +19,13 @@ void Parser::parse_binary_op(){
         }
         right = operate.pop();
     }
+    // verificacao de erro
     // if de protecao (right nunca deve ser NULL, mas nao custa
     // se precaver :D )
-    if (right == NULL)
-        throw Error("Could not process binary operator \"" + val + "\". A binary operator must be used inside a valid expression field and needs 2 operands. For some reason, there was an error (Right operator is EMPTY).", token, line, ERR_UNK);
+    if (operate.empty() || right == NULL)
+        throw Error("Could not process binary operator \"" + val + "\". A binary operator must be used" +
+            " inside a valid expression field and needs 2 operands. For some reason, there was an error" +
+            " (Right operator OR Stack is EMPTY).", token, line, ERR_UNK);
     operate.push(right);
     // adicionar novo no val
     operate.add_swap(new Node(T_SYM, val, line));
@@ -83,7 +74,9 @@ void Parser::parse_sym(){
             operate.pop();
             // verificacao de erro
             if (operate.empty())
-                throw Error("Could not process symbol \"" + val + "\". You are most likely trying to either declare or execute a function call, but some error happened while parsing it. Check if your syntax is right!", token, line, ERR_SYM);
+                throw Error("Could not process symbol \"" + val + "\". You are most likely trying to" +
+                    " either declare or execute a function call, but some error happened while parsing" +
+                    " it. Check if your syntax is right!", token, line, ERR_SYM);
             Node *prev_top_id = operate.top();
             if (prev_top_id->getType() == AST_DECFUNC){
                 // sabemos que estamos numa declaracao de funcao (decfunc)
@@ -103,13 +96,17 @@ void Parser::parse_sym(){
     } else if (val == ")"){
         // verificacao de erro
         if (operate.empty())
-            throw Error("Could not process symbol \"" + val + "\". Each parenteses need to be matched in pairs (opening and closing). Check if your syntax is right!", token, line, ERR_SYM);
+            throw Error("Could not process symbol \"" + val + "\". Each parenteses need to be" +
+                " matched in pairs (opening and closing). Check if your syntax is right!",
+                token, line, ERR_SYM);
         // retorne para o no que ativou o parentese
         while(operate.top()->getType() != AST_PAREN && operate.top()->getType() != AST_ARGLIST && operate.top()->getType() != AST_DECFUNC){
             operate.pop();
             // verificacao de erro
             if (operate.empty())
-                throw Error("Could not process symbol \"" + val + "\". Each parenteses need to be matched in pairs (opening and closing). Check if your syntax is right!", token, line, ERR_SYM);
+                throw Error("Could not process symbol \"" + val +
+                    "\". Each parenteses need to be matched in pairs (opening and closing)." +
+                    " Check if your syntax is right!", token, line, ERR_SYM);
         }
         // verifique se estamos em um arglist, se sim
         // retorne o stack para a function call
@@ -118,7 +115,9 @@ void Parser::parse_sym(){
                 operate.pop();
                 // verificacao de erro
                 if (operate.empty())
-                    throw Error("Could not process symbol \"" + val + "\". You tried to perform a function call, but your syntax is incorrect.", token, line, ERR_SYM);
+                    throw Error("Could not process symbol \"" + val +
+                        "\". You tried to perform a function call, but your syntax is incorrect.",
+                        token, line, ERR_SYM);
             }
         } else if (operate.top()->getType() == AST_PAREN) {
             // verifique se o paren pertence a um no de operador unario, if ou while,
@@ -127,7 +126,9 @@ void Parser::parse_sym(){
             Node *paren = operate.pop();
             // verificacao de erro
             if (paren == NULL || operate.empty())
-                throw Error("Could not process symbol \"" + val + "\". Each parenteses need to be matched in pairs (opening and closing). Check if your syntax is right!", token, line, ERR_SYM);
+                throw Error("Could not process symbol \"" + val + "\". Each parenteses need to be" +
+                    " matched in pairs (opening and closing). Check if your syntax is right!",
+                    token, line, ERR_SYM);
             if (operate.top()->getType() != AST_IF && operate.top()->getType() != AST_WHILE && precedence_un.find(operate.top()->getType()) == precedence_un.end()){
                 operate.push(paren);
             }
@@ -137,18 +138,21 @@ void Parser::parse_sym(){
     } else if (val == "}"){
         // verificacao de erro
         if (operate.empty())
-            throw Error("Could not process symbol \"" + val + "\". Each block needs an open and close curly braces {}.", token, line, ERR_SYM);
+            throw Error("Could not process symbol \"" + val +
+                "\". Each block needs an open and close curly braces {}.", token, line, ERR_SYM);
         // retorne para fora do escopo do bloco
         while (operate.top()->getType() != AST_BLOCK) {
             operate.pop();
             // verificacao de erro
             if (operate.empty())
-                throw Error("Could not process symbol \"" + val + "\". Each block needs an open and close curly braces {}.", token, line, ERR_SYM);
+                throw Error("Could not process symbol \"" + val +
+                    "\". Each block needs an open and close curly braces {}.", token, line, ERR_SYM);
         }
         operate.pop();
         // verificacao de erro
         if (operate.empty())
-            throw Error("Could not process symbol \"" + val + "\". Each block needs an open and close curly braces {}.", token, line, ERR_SYM);
+            throw Error("Could not process symbol \"" + val +
+                "\". Each block needs an open and close curly braces {}.", token, line, ERR_SYM);
         // saia da declaracao da funcao, while
         Node *n = operate.top();
         if (n->getType() == AST_DECFUNC || n->getType() == AST_WHILE || n->getType() == AST_IF)
@@ -156,7 +160,8 @@ void Parser::parse_sym(){
     } else if (val == ","){
         // verificacao de erro
         if (operate.empty())
-            throw Error("Could not process symbol \"" + val + "\". Commas can only be used in certain scenarios, please check your code syntax.", token, line, ERR_SYM);
+            throw Error("Could not process symbol \"" + val +
+                "\". Commas can only be used in certain scenarios, please check your code syntax.", token, line, ERR_SYM);
         operate.pop();
     } else if (val == ";"){
         // verificacao de erro
@@ -172,15 +177,17 @@ void Parser::parse_sym(){
     } else if (val == "="){
         // verificacao de erro
         if (operate.empty())
-            throw Error("Could not process symbol \"" + val + "\". The assign operator needs a variable in its right side to work correctly.", token, line, ERR_SYM);
+            throw Error("Could not process symbol \"" + val +
+                "\". The assign operator needs a variable in its right side to work correctly.", token, line, ERR_SYM);
         operate.add_swap(new Node(T_SYM, AST_ASSIGN, line));
     } else if (val == "+" || val == "-" || val == "*" || val == "/" || val == "<" || val == ">" || val == "<=" || val == ">=" || val == "==" || val == "!=" || val == "&&" || val == "||"){
         // verificacao de erro
         if (operate.empty())
-            throw Error("Could not process symbol \"" + val + "\". Binary operators require 2 operands.", token, line, ERR_SYM);
+            throw Error("Could not process symbol \"" + val +
+                "\". Binary operators require 2 operands.", token, line, ERR_SYM);
         Node *top = operate.top();
         // // verifique se estamos processando operadores unarios
-        if (val == "-" && isExpr()){
+        if ( val == "-" && Utility::isExpr( top->getType() ) ){
             // o operador val é unario pois o que o antecede é um
             // operador de expressao)
             val = "u-";
@@ -216,16 +223,12 @@ void Parser::parse(string t, string v, int l){
     // cout << "\n\tPROGRAM (t: \"" << t << "\" - v: \"" << v << "\" - l: " << l <<
         // " - STACK: " << *operate.top()  << "): \n\n" << *getProgramAST() << "\n\n";
     // check for the token type
-    if (token == T_ID) {
-        parse_id();
-    } else if (token == T_KEY) {
-        parse_key();
-    } else if (token == T_DEC) {
-        parse_dec();
-    } else if (token == T_SYM) {
-        parse_sym();
-    } else
-        throw Error(string("Unidentified token \"") + val + "\" could not be parsed.", token, line, ERR_TOKEN_UNDEF);
+    if (token == T_ID)        parse_id();
+    else if (token == T_KEY)  parse_key();
+    else if (token == T_DEC)  parse_dec();
+    else if (token == T_SYM)  parse_sym();
+    else                      throw Error(string("Unidentified token \"") + val + "\" could not be parsed.",
+                                 token, line, ERR_TOKEN_UNDEF);
 }
 
 Node* Parser::getProgramAST(){

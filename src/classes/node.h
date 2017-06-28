@@ -36,12 +36,19 @@ public:
     Node* bottom();
     Node* pop();
     Node* pop_front();
+    void clear();
 
     std::list<Node*>::iterator insert(std::list<Node*>::iterator i, Node *n);
+    std::list<Node*>::iterator remove(std::list<Node*>::iterator it);
     std::list<Node*>::iterator remove(Node *n);
 
+    std::list<Node*>::iterator begin();
+    std::list<Node*>::iterator end();
+    std::list<Node*>::reverse_iterator rbegin();
+    std::list<Node*>::reverse_iterator rend();
+
     Node* operator[](int i){
-        if (i < children.size() && i > 0) {
+        if (i < children.size() && i >= 0) {
             std::list<Node*>::iterator it = children.begin();
             for (int j = 0; j < i; j++){it++;}
             return *it;

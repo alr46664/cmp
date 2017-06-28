@@ -11,6 +11,7 @@
 #include "node.h" // Node class
 #include "error.h" // Error class
 #include "operate.h" // Operate class
+#include "utility.h" // utility class
 
 // defines of the AST types
 #include "ast_types.h"
@@ -34,7 +35,6 @@ private:
     int line;
 
     // PRIVATE FUNCTIONS
-    bool isExpr();
 
     void parse_unary_op();
     void parse_binary_op();

@@ -1,6 +1,8 @@
+
 # variaveis dos compiladores/simuladores
 MIPS=qtspim
 
+# TO COMPILE THIS SOURCE CODE, YOU WILL NEED GCC / G++ >= 4.8
 # compilador c, linkar com o flex,
 GCC=gcc
 CFLAGS=-ggdb -g3 -lfl -lm
