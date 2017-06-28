@@ -13,7 +13,8 @@
 #define ERR_DEC 5
 #define ERR_SYM 6
 
-#define ERR_SEM 7
+#define ERR_SIN 7
+#define ERR_SEM 8
 
 class Error: public std::exception {
 private:

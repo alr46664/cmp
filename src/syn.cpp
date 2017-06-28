@@ -6,17 +6,21 @@
 // custom includes
 #include "syn.h" // defines
 #include "classes/parser.h" // Parser class
-#include "classes/semantical.h" // Semantical class
+#include "classes/sintatical.h" // sintatical class
+#include "classes/semantical.h" // semantical class
 #include "classes/error.h" // error exception class
 
 using namespace std;
 
 // create the single parser that the whole program will use
 Parser p;
+// create the sintatical analiser
+Sintatical sin(p.getProgramAST());
 // create the semantical analiser
-Semantical s(p.getProgramAST());
+Semantical sem(p.getProgramAST());
 
-void run_sintatical_analiser(){
+// parse the token stream into an AST
+void run_ast_parser(){
     // store the whole stdin / cin line
     int line;
     string token, val, input;
@@ -38,17 +42,20 @@ void run_sintatical_analiser(){
 
 int main(int argc, char **argv) {
     try {
-        run_sintatical_analiser();
+        // parse the token stream into an AST
+        run_ast_parser();
+        // run the sintatical analiser
+        sin.run();
         // run the semantical analiser
-        s.run();
+        // sem.run();
         // print the program AST tree
         cout << *p.getProgramAST() << endl;
         return 0;
     } catch (Error& e) {
         cerr << e.what() << endl;
-        exit(e.getCode());
+        return e.getCode();
     } catch (exception& e) {
         cerr << e.what() << endl;
-        exit(ERR_UNK);
+        return ERR_UNK;
     }
 }
