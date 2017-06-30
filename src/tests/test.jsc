@@ -103,16 +103,16 @@
 //     }
 // }
 
-// def main() {
-//     var c = 10;
-//     while(c > 0){
-//         if (c == 5){
-//             continue;
-//         }
-//         if (c == 2){
-//             break;
-//         }
-//         print(c);
-//         c = c-1;
-//     }
-// }
+def main() {
+    var c = 10;
+    while(c > 0){
+        if (c == 5){
+            continue;
+        }
+        if (c == 2){
+            break;
+        }
+        print(c);
+        c = c-1;
+    }
+}

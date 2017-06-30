@@ -14,10 +14,6 @@ CPPFLAGS=-Wno-write-strings -ggdb  -g3 -lm -std=c++11
 VALGRIND=valgrind
 VALGRIND_ARGS=--leak-check=full --show-leak-kinds=all -v
 
-# compilador c++, codegen
-# GPP=g++
-# CPPFLAGS=
-
 # # encontre todos os arquivos .CPP e passe-os para a
 # # extensao .O
 # CPP_FILES := $(wildcard *.cpp)
@@ -37,6 +33,11 @@ GEN_BIN=gen
 
 ANALISER_TARGET=$(ANALISER_BIN).target
 CODEGEN_TARGET=$(CODEGEN_BIN).out
+
+# default do make
+default: full_clean
+	@$(MAKE) $(CODEGEN_TARGET)
+
 
 # rode o simulador MIPS (SPIM)
 # sintaxe:
@@ -101,12 +102,16 @@ lex.yy.c: lex.yy.l
 # limpe arquivos temporarios
 clean:
 	@echo -e "\n\tLimpando arquivos .syn .lex .asm ...\n"
-	@$(RM) *.syn *.lex *.asm
+	@find * -name '*.syn' -exec $(RM) {} \;
+	@find * -name '*.lex' -exec $(RM) {} \;
+	@find * -name '*.asm' -exec $(RM) {} \;
 
 # limpe binarios e arquivos objeto
 clean_bin:
 	@echo -e "\n\tLimpando binarios e objetos ...\n"
-	@$(RM) $(LEX_BIN) $(SYN_BIN) $(GEN_BIN) *.o *.ocpp classes/*.o classes/*.ocpp lex.yy.c
+	@$(RM) $(LEX_BIN) $(SYN_BIN) $(GEN_BIN) lex.yy.c
+	@find * -name '*.o' -exec $(RM) {} \;
+	@find * -name '*.ocpp' -exec $(RM) {} \;
 
 full_clean: clean_bin clean
 
