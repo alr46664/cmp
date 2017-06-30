@@ -58,7 +58,7 @@ public:
         // add the program AST to the analiser
         operate.push_back(top = p);
         // add global scope (program)
-        sem.addContext(p);
+        sem.addContext(AST_PROGRAM, p);
     };
 
     void run();

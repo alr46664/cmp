@@ -40,8 +40,7 @@ Defined* Semantical::find(string name, Node* node){
 // PUBLIC
 
 // add a new context
-void Semantical::addContext(Node* n){
-    string name = n->getType();
+void Semantical::addContext(string name, Node* n){
     // avoid duplicate ifs and while blocks
     if (name == AST_IF || name == AST_WHILE || name == AST_BLOCK ){
         name += "_" + to_string(context_size);

@@ -31,19 +31,18 @@
 //     return l;
 // }
 
-def main(c,q){
-    while(c){
-        let x;
-        while(q){
-            let a;
-            return c+x;
-        }
-    }
-    while(c+q){
-
-         return 5;
-    }
-}
+// def main(c,q){
+//     while(c){
+//         let x;
+//         while(q){
+//             let a;
+//             return c+x;
+//         }
+//     }
+//     while(c+q){
+//          return 5;
+//     }
+// }
 
 // def main(c,q){
 //    return q+5*8 > 8;
@@ -71,9 +70,10 @@ def main(c,q){
 // // begin - bloco de codigo
 
 // let varix = 7;
+// var xa = 10;
 
 // def bla(x){
-//  return x+varix;
+//  return xa+x+varix;
 // }
 
 // def sd(x,q,a){
@@ -82,27 +82,37 @@ def main(c,q){
 
 // def main(){
 //     bla(varix);
-    // print(5);
+//     print(5);
 //     return bla(4) * 7 + sd(4,6,8)*bla(varix);
-       // return 5+7-1;
+//     return 5+7-1;
 //     return 5-7;
-    // return -5+7;
+//     return -5+7;
 //     return -(5-7)+5;
-    // return bla(-4+5)+(-10)*(5+7);
+//     return bla(-4+5)+(-10)*(5+7);
 // }
 
 // // end - bloco de codigo
 
-
-// def main(c,q){
-
-// }
-
 // def main(){
-//     var c, q;
+//     var c = 10;
+//     var q;
 //     if (c == 4){
 //         while(c < 5) {
-//             c = c+1;
+//             c = c*q+1;
 //         }
+//     }
+// }
+
+// def main() {
+//     var c = 10;
+//     while(c > 0){
+//         if (c == 5){
+//             continue;
+//         }
+//         if (c == 2){
+//             break;
+//         }
+//         print(c);
+//         c = c-1;
 //     }
 // }

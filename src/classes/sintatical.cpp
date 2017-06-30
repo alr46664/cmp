@@ -95,15 +95,13 @@ void Sintatical::check_program(){
 }
 
 void Sintatical::check_decfunc(){
-    Node* decfunc = top;
-    Node* id;
+    Node *decfunc = top;
+    Node *decfunc_id, *decfunc_block;
     int paramlist_sz = 0;
     // this variable keep track of the position of the child
     int i = 0;
     // this variable keep track if the decfunc is right formed
     bool res = (top->size_children() == 3);
-    // add function context
-    // sem.addContext(top);
     for(list<Node*>::iterator it = top->begin(); it != top->end(); it++){
         Node *child = *it;
         // put the child inside the stack
@@ -113,7 +111,7 @@ void Sintatical::check_decfunc(){
             if (child->getToken() != T_ID) {
                 res = false;
             } else {
-                id = child;
+                decfunc_id = child;
             }
             break;
         case 1:
@@ -124,7 +122,11 @@ void Sintatical::check_decfunc(){
             }
             break;
         case 2:
-            if (child->getType() != AST_BLOCK) res = false;
+            if (child->getType() != AST_BLOCK) {
+                res = false;
+            } else {
+                decfunc_block = child;
+            }
             break;
         default:
             res = false;
@@ -135,8 +137,8 @@ void Sintatical::check_decfunc(){
     if (!res) throw Error(string("Function declaration syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
     // add a new defined function inside the previous context,
     // and create this new function scope as well
-    sem.set(id, DEFINED_FUNCTION, paramlist_sz);
-    sem.addContext(decfunc);
+    sem.set(decfunc_id, DEFINED_FUNCTION, paramlist_sz);
+    sem.addContext(decfunc_id->getType(), decfunc);
 }
 
 void Sintatical::check_decvar(){
@@ -290,7 +292,7 @@ void Sintatical::check_if(){
                 res = false;
             } else {
                 // semantical analisis
-                sem.addContext(child);
+                sem.addContext(n_if->getType(), child);
             }
             break;
         default:
@@ -318,7 +320,12 @@ void Sintatical::check_while(){
             if (!Utility::isExprResult(child->getType(), child->getToken())) res = false;
             break;
         case 1:
-            if (child->getType() != AST_BLOCK) res = false;
+            if (child->getType() != AST_BLOCK) {
+                res = false;
+            } else {
+                // add the while block to the semantical analisis
+                sem.addContext(n_while->getType(), child);
+            }
             break;
         default:
             res = false;
@@ -326,20 +333,32 @@ void Sintatical::check_while(){
         }
     }
     if (!res) throw Error(string("While syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
-    // add the while block to the semantical analisis
-    sem.addContext(n_while);
 }
 
 void Sintatical::check_break(){
-    // TODO verify if its inside a loop
+    Node* n = top;
+    // sintatical analisis
     bool res = (top->size_children() == 0);
     if (!res) throw Error(string("Break syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    // semantical analisis - is inside loop?
+    while (n != NULL && n->getType() != AST_WHILE){
+        n = n->getParent();
+    }
+    if (n == NULL)
+        throw Error(string("Break statement can only be used inside a while loop!"), top->getType(), top->getLine(), ERR_SEM);
 }
 
 void Sintatical::check_continue(){
-    // TODO verify if its inside a loop
+    Node* n = top;
+    // sintatical analisis
     bool res = (top->size_children() == 0);
     if (!res) throw Error(string("Continue syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    // semantical analisis - is inside loop?
+    while (n != NULL && n->getType() != AST_WHILE){
+        n = n->getParent();
+    }
+    if (n == NULL)
+        throw Error(string("Continue statement can only be used inside a while loop!"), top->getType(), top->getLine(), ERR_SEM);
 }
 
 void Sintatical::check_expr(){
@@ -363,12 +382,16 @@ void Sintatical::check_id(){
     bool res = (top->size_children() == 0);
     if (!res) throw Error(string("ID syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
     // do semantical analisis
+    Defined& d = sem.get(top);
     if (parent != NULL && parent->getType() != AST_FUNCCALL && parent->getType() != AST_DECFUNC){
         // we know this id is not a function, so it must be a variable!
-        Defined& d = sem.get(top);
         if (d.getType() != DEFINED_VARIABLE)
             throw Error(string("The id you're trying to use is not a variable. So it's a function and requires the () to be called."), top->getType(), top->getLine(), ERR_SEM);
     }
+    // change the name of the defined variable/function
+    // (WE SHOULD NOT ENABLE THIS - THE EXAMPLE OUTPUT SUGGESTS WE KEEP
+    // THE MAIN VARIABLE NAMES AS THEY WERE DEFINED BY THE PROGRAMMER!)
+    // top->setType(d.getName());
 }
 
 void Sintatical::run(){

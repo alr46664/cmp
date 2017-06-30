@@ -35,7 +35,7 @@ public:
         context_size = 0;
     }
 
-    void addContext(Node* n);
+    void addContext(std::string name, Node* n);
 
     Defined& get(Node* n);
     void set(Node* n, std::string t, int s = 0);
