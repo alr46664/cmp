@@ -3,40 +3,85 @@
 
 using namespace std;
 
-void Semantical::run(){
-    cout << "Semantical - BEGIN\n\n";
-    while(!operate.empty()) {
-        top = operate.front();
-        // remove top from stack
-        operate.pop_front();
-        // DEBUGGING STACK
-        cout << "PROCESSING: \n\t" << *top << "\n\n";
-        // check the children nodes
-        //      if (top->getType() == AST_PROGRAM)    check_program();
-        // else if (top->getType() == AST_DECFUNC)    check_decfunc();
-        // else if (top->getType() == AST_DECVAR)     check_decvar();
-        // else if (top->getType() == AST_ASSIGN)     check_assign();
-        // else if (top->getType() == AST_FUNCCALL)   check_funccall();
-        // else if (top->getType() == AST_ARGLIST)    check_arglist();
-        // else if (top->getType() == AST_PARAMLIST)  check_paramlist();
-        // else if (top->getType() == AST_BLOCK)      check_block();
-        // else if (top->getType() == AST_RETURN)     check_return();
-        // else if (top->getType() == AST_IF)         check_if();
-        // else if (top->getType() == AST_WHILE)      check_while();
-        // else if (top->getType() == AST_BREAK)      check_break();
-        // else if (top->getType() == AST_CONTINUE)   check_continue();
-        // else if ( Utility::isBinaryOp(top->getType()) ||
-        //     Utility::isUnaryOp(top->getType()) )   check_expr();
-        // else if (top->getToken() == T_ID)          check_id();
-        // else if (top->getToken() != T_DEC)
-        //     throw Error(string("Node of type \"") + top->getToken()  + "\" not identified!", top->getType(), top->getLine(), ERR_SIN);
+// PRIVATE
+
+// find the first context from bottom up the tree
+Context* Semantical::findContext(Node* node){
+    Context* c = NULL;
+    while( node != NULL && (c = node->getContext()) == NULL){
+        node = node->getParent();
     }
-    // free up memory
-    clear();
-    cout << "\nSemantical - END\n\n";
+    return c;
 }
 
-// reduce memory usage
-void Semantical::clear(){
-    operate.clear();
+// check if a context is already defined
+Context* Semantical::findContext(string name, Node* node){
+    Context* c = NULL;
+    while( node != NULL && ((c = node->getContext()) == NULL || c->getName() != name) ){
+        node = node->getParent();
+    }
+    if (c != NULL && c->getName() == name)
+        return c;
+    return NULL;
+}
+
+// verifies if the variable / function n is defined in some context
+Defined* Semantical::find(string name, Node* node){
+    Context* c = NULL;
+    map<string, Defined>::iterator it;
+    while( node != NULL && ((c = node->getContext()) == NULL || (it = c->find(name)) == c->end()) ){
+        node = node->getParent();
+    }
+    if (c != NULL && it != c->end())
+        return &(it->second);
+    return NULL;
+}
+
+// PUBLIC
+
+// add a new context
+void Semantical::addContext(Node* n){
+    string name = n->getType();
+    // avoid duplicate ifs and while blocks
+    if (name == AST_IF || name == AST_WHILE || name == AST_BLOCK ){
+        name += "_" + to_string(context_size);
+    }
+    // check if context is already defined
+    if (findContext(name, n) != NULL)
+        throw Error(string("The function (context) already exists (duplicate names not allowed)!"), n->getType(), n->getLine(), ERR_SEM);
+    // create new context and update control variable
+    n->createContext(name);
+    context_size++;
+}
+
+// get the name of an already defined variable/function, if not found
+// return "" (empty string)
+Defined& Semantical::get(Node* n){
+    Defined* d = find(n->getType(), n);
+    if (d == NULL)
+        throw Error(string("Could not find variable / function (not declared)!"), n->getType(), n->getLine(), ERR_SEM);
+    return *d;
+}
+
+// set a new context varible/function (defined by t)
+void Semantical::set(Node* n, string t, int s){
+    try {
+        // try to get it from the contexts already defined
+        // (this should throw an error if variable/function not set)
+        get(n);
+    } catch (Error& e) {
+        // this catch is expected to happen, since we dont have the
+        // function / variable declared yet (the get() should throw Error)
+
+        // TODO
+        Context* c = findContext(n);
+        if (c == NULL)
+            throw Error(string("Could not find a context to add the variable!"), n->getType(), n->getLine(), ERR_SEM);
+        c->add(n->getType(), t, s);
+        return;
+    }
+    // if we reached this point, our function failed becuse the
+    // get didnt throw the error (which means we've found the function/variable
+    // in other contexts already defined)
+    throw Error(string("Could not set a new variable / function (duplicated names not allowed)!"), n->getType(), n->getLine(), ERR_SEM);
 }

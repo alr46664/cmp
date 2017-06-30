@@ -7,35 +7,46 @@
 using namespace std;
 
 void Sintatical::clean_up(){
-    for(list<Node*>::iterator it = top->begin(); it != top->end(); it++){
-        Node *child = *it;
-        // remove paren from nodes (leave only its content)
-        if (child->getType() == AST_PAREN){
-            // get paren content and insert it in paren place
-            list<Node*>::iterator it_pos = top->remove(it);
-            if (child->size_children() == 1){
-                Node *paren_child = *(child->begin());
-                top->insert(it_pos, paren_child);
-            }
-            // free paren list and release its memory
-            child->clear();
-            delete child;
-        } else if (child->getType() == AST_DECVAR){
-            if (child->size_children() > 0){
-                // if we have an assign inside a decvar, remove it and
-                // add the assign's children to decvar
-                Node *decvar_child = *(child->begin());
-                if (decvar_child->getType() == AST_ASSIGN){
-                    // remove assign from decvar
-                    child->pop_front();
-                    // pass all assign children to the decvar node
-                    for (list<Node*>::iterator it_assign = decvar_child->begin(); it_assign != decvar_child->end(); it_assign++){
-                        child->add(*it_assign);
-                    }
-                    // free decvar_child (assign token)
-                    decvar_child->clear();
-                    delete decvar_child;
+    // while something has changed, then continue the cleanup
+    bool clean_continue = true;
+    while (clean_continue){
+        // lets reset the clean continue var
+        clean_continue = false;
+        for(list<Node*>::iterator it = top->begin(); it != top->end(); it++){
+            Node *child = *it;
+            // remove paren from nodes (leave only its content)
+            if (child->getType() == AST_PAREN){
+                clean_continue = true;
+                // get paren content and insert it in paren place
+                list<Node*>::iterator it_pos = top->remove(it);
+                if (child->size_children() == 1){
+                    Node *paren_child = *(child->begin());
+                    top->insert(it_pos, paren_child);
                 }
+                // free paren list and release its memory
+                child->clear();
+                delete child;
+            } else if (child->getType() == AST_DECVAR){
+                if (child->size_children() > 0){
+                    // if we have an assign inside a decvar, remove it and
+                    // add the assign's children to decvar
+                    Node *decvar_child = *(child->begin());
+                    if (decvar_child->getType() == AST_ASSIGN){
+                        clean_continue = true;
+                        // remove assign from decvar
+                        child->pop_front();
+                        // pass all assign children to the decvar node
+                        for (list<Node*>::iterator it_assign = decvar_child->begin(); it_assign != decvar_child->end(); it_assign++){
+                            child->add(*it_assign);
+                        }
+                        // free decvar_child (assign token)
+                        decvar_child->clear();
+                        delete decvar_child;
+                    }
+                }
+            } else if (child->getType() == "u-"){
+                clean_continue = true;
+                child->setType("-");
             }
         }
     }
@@ -68,8 +79,6 @@ void Sintatical::verify_children(bool test_all, initializer_list<char*> token_te
         if (!res) throw Error(msg, child->getType(), child->getLine(), ERR_SIN);
         // the children is fine, add it to the stack
         operate.push_back(child);
-        // TODO remove debugging statement below
-        // cout << *child << endl << endl;
     }
 }
 
@@ -86,20 +95,33 @@ void Sintatical::check_program(){
 }
 
 void Sintatical::check_decfunc(){
+    Node* decfunc = top;
+    Node* id;
+    int paramlist_sz = 0;
     // this variable keep track of the position of the child
     int i = 0;
     // this variable keep track if the decfunc is right formed
     bool res = (top->size_children() == 3);
+    // add function context
+    // sem.addContext(top);
     for(list<Node*>::iterator it = top->begin(); it != top->end(); it++){
         Node *child = *it;
         // put the child inside the stack
         operate.push_back(child);
         switch(i++){
         case 0:
-            if (child->getToken() != T_ID) res = false;
+            if (child->getToken() != T_ID) {
+                res = false;
+            } else {
+                id = child;
+            }
             break;
         case 1:
-            if (child->getType() != AST_PARAMLIST) res = false;
+            if (child->getType() != AST_PARAMLIST) {
+                res = false;
+            } else {
+                paramlist_sz = child->size_children();
+            }
             break;
         case 2:
             if (child->getType() != AST_BLOCK) res = false;
@@ -111,9 +133,14 @@ void Sintatical::check_decfunc(){
         // cout << i << " - " << child->getToken() << " - " << child->getType() << endl;
     }
     if (!res) throw Error(string("Function declaration syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    // add a new defined function inside the previous context,
+    // and create this new function scope as well
+    sem.set(id, DEFINED_FUNCTION, paramlist_sz);
+    sem.addContext(decfunc);
 }
 
 void Sintatical::check_decvar(){
+    Node* decvar = top;
     // this variable keep track of the position of the child
     int i = 0;
     // this variable keep track if it is right formed
@@ -124,7 +151,12 @@ void Sintatical::check_decvar(){
         operate.push_back(child);
         switch(i++){
         case 0:
-            if (child->getToken() != T_ID) res = false;
+            if (child->getToken() != T_ID) {
+                res = false;
+            } else {
+                // add those ids to the semantical analisis
+                sem.set(child, DEFINED_VARIABLE);
+            }
             break;
         case 1:
             if (!Utility::isExprResult(child->getType(), child->getToken())) res = false;
@@ -148,7 +180,14 @@ void Sintatical::check_assign(){
         operate.push_back(child);
         switch(i++){
         case 0:
-            if (child->getToken() != T_ID) res = false;
+            if (child->getToken() != T_ID) {
+                res = false;
+            } else {
+                // perform the semantical verification
+                Defined& v = sem.get(child);
+                if (v.getType() != DEFINED_VARIABLE)
+                    throw Error(string("The id you're trying to perform an assign is not a variable (its a function)!"), top->getType(), top->getLine(), ERR_SEM);
+            }
             break;
         case 1:
             if ( !Utility::isExprResult(child->getType(), child->getToken()) ) res = false;
@@ -162,6 +201,7 @@ void Sintatical::check_assign(){
 }
 
 void Sintatical::check_funccall(){
+    Defined* d;
     // this variable keep track of the position of the child
     int i = 0;
     // this variable keep track if it is right formed
@@ -172,10 +212,21 @@ void Sintatical::check_funccall(){
         operate.push_back(child);
         switch(i++){
         case 0:
-            if (child->getToken() != T_ID) res = false;
+            if (child->getToken() != T_ID){
+                res = false;
+            } else {
+                d = &sem.get(child);
+                if (d->getType() != DEFINED_FUNCTION)
+                    throw Error(string("The id specified is not a function id (its probably a variable). Check your function declarations!"), top->getType(), top->getLine(), ERR_SIN);
+            }
             break;
         case 1:
-            if (child->getType() != AST_ARGLIST) res = false;
+            if (child->getType() != AST_ARGLIST) {
+                res = false;
+            } else {
+                if (d->getArgSize() != child->size_children())
+                    throw Error(string("The function you are trying to call requires a certain # of arguments. Check if that number is correct!"), top->getType(), top->getLine(), ERR_SIN);
+            }
             break;
         default:
             res = false;
@@ -199,7 +250,13 @@ void Sintatical::check_arglist(){
 }
 
 void Sintatical::check_paramlist(){
+    Node *paramlist = top;
     verify_children(false, {T_ID}, {}, string("The paramlist of a function declaration can only contain ID's.") );
+    // add those ids to the semantical analisis
+    for(list<Node*>::iterator it = paramlist->begin(); it != paramlist->end(); it++){
+        Node *child = *it;
+        sem.set(child, DEFINED_VARIABLE);
+    }
 }
 
 void Sintatical::check_block(){
@@ -214,6 +271,7 @@ void Sintatical::check_return(){
 }
 
 void Sintatical::check_if(){
+    Node* n_if = top;
     // this variable keep track of the position of the child
     int i = 0;
     // this variable keep track if it is right formed
@@ -228,7 +286,12 @@ void Sintatical::check_if(){
             break;
         case 1:
         case 2:
-            if (child->getType() != AST_BLOCK) res = false;
+            if (child->getType() != AST_BLOCK) {
+                res = false;
+            } else {
+                // semantical analisis
+                sem.addContext(child);
+            }
             break;
         default:
             res = false;
@@ -236,9 +299,12 @@ void Sintatical::check_if(){
         }
     }
     if (!res) throw Error(string("If [else] syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    // add the if block to the semantical analisis
+    // sem.addContext(n_if);
 }
 
 void Sintatical::check_while(){
+    Node* n_while = top;
     // this variable keep track of the position of the child
     int i = 0;
     // this variable keep track if it is right formed
@@ -260,6 +326,8 @@ void Sintatical::check_while(){
         }
     }
     if (!res) throw Error(string("While syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    // add the while block to the semantical analisis
+    sem.addContext(n_while);
 }
 
 void Sintatical::check_break(){
@@ -275,31 +343,47 @@ void Sintatical::check_continue(){
 }
 
 void Sintatical::check_expr(){
-    bool res = true;
+    // lets check for the unary and binary operators
+    bool res = ( (Utility::isBinaryOp(top->getType()) && top->size_children() == 2) ||
+        ( Utility::isUnaryOp(top->getType()) && top->size_children() == 1 ) );
     for(list<Node*>::iterator it = top->begin(); it != top->end(); it++){
         Node *child = *it;
+        // cout << "\n Top: " << *top << " - Child: " << *child << "\n\n";
         // put the child inside the stack
         operate.push_back(child);
         if ( !Utility::isExprResult( child->getType(), child->getToken() ) ) res = false;
     }
     if (!res) throw Error(string("Expression syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    res = false;
 }
 
 void Sintatical::check_id(){
+    Node* parent = top->getParent();
+    // sintatical analisis
     bool res = (top->size_children() == 0);
     if (!res) throw Error(string("ID syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
+    // do semantical analisis
+    if (parent != NULL && parent->getType() != AST_FUNCCALL && parent->getType() != AST_DECFUNC){
+        // we know this id is not a function, so it must be a variable!
+        Defined& d = sem.get(top);
+        if (d.getType() != DEFINED_VARIABLE)
+            throw Error(string("The id you're trying to use is not a variable. So it's a function and requires the () to be called."), top->getType(), top->getLine(), ERR_SEM);
+    }
 }
 
 void Sintatical::run(){
-    cout << "Sintatical - BEGIN\n\n";
+    // cout << "Sintatical - BEGIN\n\n";
     while(!operate.empty()) {
         top = operate.front();
         // remove top from stack
         operate.pop_front();
-        // DEBUGGING STACK
-        cout << "PROCESSING: \n\t" << *top << "\n\n";
         // do some clean up inside the nodes
         clean_up();
+        // DEBUGGING STACK
+        // Node* p = top->getParent();
+        // if (p != NULL)
+        //     cout << "PARENT: " << *p << "\n";
+        cout <<     "TOP:    " << *top << "\n\n";
         // check the children nodes
              if (top->getType() == AST_PROGRAM)    check_program();
         else if (top->getType() == AST_DECFUNC)    check_decfunc();
@@ -322,7 +406,7 @@ void Sintatical::run(){
     }
     // free up memory
     clear();
-    cout << "\nSintatical - END\n\n";
+    // cout << "\nSintatical - END\n\n";
 }
 
 // reduce memory usage

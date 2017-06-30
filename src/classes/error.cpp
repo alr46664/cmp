@@ -10,5 +10,5 @@ const int Error::getCode(){
 }
 
 const string Error::what(){
-    return string("\nERROR: (Line \"") + to_string(line) + "\") - " + token + " - " + msg + "\n";
+    return string("\nERROR: (Line: \"") + to_string(line) + "\" - Token / Char: \"" + token + "\") - " + msg + "\n";
 }

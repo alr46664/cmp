@@ -1,23 +1,34 @@
 #ifndef NODE_H
 #define NODE_H
 
-
 #include <iostream>
 #include <string>
 #include <list>
+
+#include "context.h"
 
 class Node {
 private:
     std::string token, type;
     int line;
+
+    Node* parent;
     std::list<Node*> children;
+
+    Context* context;
 public:
     //   MEMBER
     Node();
     Node(std::string token, std::string type, int line);
     ~Node();
 
+    void createContext(std::string c);
+    Context* getContext();
+
     int size_children();
+
+    void setParent(Node* p);
+    Node* getParent();
 
     void setType(std::string t);
     std::string getType();

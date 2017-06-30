@@ -7,7 +7,7 @@
 #include "syn.h" // defines
 #include "classes/parser.h" // Parser class
 #include "classes/sintatical.h" // sintatical class
-#include "classes/semantical.h" // semantical class
+#include "classes/node.h" // Node class
 #include "classes/error.h" // error exception class
 
 using namespace std;
@@ -16,14 +16,36 @@ using namespace std;
 Parser p;
 // create the sintatical analiser
 Sintatical sin(p.getProgramAST());
-// create the semantical analiser
-Semantical sem(p.getProgramAST());
+
+// create default functions / variables
+void create_default(){
+    // create print default function
+    p.parse(T_KEY, "def", 0);
+    p.parse(T_ID, "print", 0);
+    p.parse(T_SYM, "(", 0);
+    p.parse(T_ID, "a", 0);
+    p.parse(T_SYM, ")", 0);
+    p.parse(T_SYM, "{", 0);
+    p.parse(T_SYM, "}", 0);
+}
+
+// clear default functions / variables so that they dont display
+// in the final AST
+void clear_default(){
+    Node* program = p.getProgramAST();
+    // remove print function from the AST
+    Node* print = *program->begin();
+    program->remove(print);
+    delete print;
+}
 
 // parse the token stream into an AST
 void run_ast_parser(){
     // store the whole stdin / cin line
     int line;
     string token, val, input;
+    // create default functions
+    create_default();
     // read until EOF
     while(getline(cin, input)){
         size_t space1 = input.find_first_of(' ');
@@ -44,10 +66,11 @@ int main(int argc, char **argv) {
     try {
         // parse the token stream into an AST
         run_ast_parser();
-        // run the sintatical analiser
+        // run the sintatical / semantical analiser
         sin.run();
-        // run the semantical analiser
-        // sem.run();
+        // clear default functions / variables so that they dont display
+        // in the final AST
+        clear_default();
         // print the program AST tree
         cout << *p.getProgramAST() << endl;
         return 0;

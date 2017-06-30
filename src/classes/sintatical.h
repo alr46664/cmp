@@ -16,10 +16,14 @@
 #include "error.h" // Error class
 #include "node.h" // Node class
 #include "utility.h" // utility class
+#include "semantical.h" // Semantical class
+#include "defined.h" // Defined class
 
 
 class Sintatical {
 private:
+    // create semantical analiser
+    Semantical sem;
     // list of nodes from the AST
     std::list<Node*> operate;
     // the top node of the list
@@ -51,7 +55,10 @@ private:
 public:
 
     Sintatical(Node* p) {
+        // add the program AST to the analiser
         operate.push_back(top = p);
+        // add global scope (program)
+        sem.addContext(p);
     };
 
     void run();

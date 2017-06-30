@@ -6,6 +6,8 @@ using namespace std;
 Node::Node(){
     token = type = "";
     line = 0;
+    context = NULL;
+    parent = NULL;
 }
 
 Node::Node(string token, string type, int line): Node(){
@@ -20,6 +22,17 @@ Node::~Node(){
             delete *it;
         }
     }
+    // destroy context
+    if (context != NULL)
+        delete context;
+}
+
+void Node::createContext(std::string c){
+    context = new Context(c);
+}
+
+Context* Node::getContext(){
+    return context;
 }
 
 list<Node*>::iterator Node::begin(){
@@ -40,6 +53,14 @@ list<Node*>::reverse_iterator Node::rend(){
 
 int Node::size_children(){
     return children.size();
+}
+
+void Node::setParent(Node* p){
+    parent = p;
+}
+
+Node* Node::getParent(){
+    return parent;
 }
 
 void Node::setType(string t){
@@ -65,12 +86,14 @@ int Node::getLine(){
 }
 
 Node* Node::add(){
-    this->children.push_back(new Node());
-    return this->children.back();
+    Node* n = new Node();
+    n->setParent(this);
+    this->children.push_back(n);
+    return n;
 }
 
 Node* Node::add(string token, string type, int line){
-    Node *n = this->add();
+    Node *n = add();
     n->setType(type);
     n->setToken(token);
     n->setLine(line);
@@ -78,6 +101,7 @@ Node* Node::add(string token, string type, int line){
 }
 
 Node* Node::add(Node* n){
+    n->setParent(this);
     this->children.push_back(n);
     return this->children.back();
 }
@@ -113,10 +137,12 @@ void Node::clear(){
 }
 
 list<Node*>::iterator Node::insert(list<Node*>::iterator i, Node *n){
+    n->setParent(this);
     return children.insert(i, n);
 }
 
 list<Node*>::iterator Node::remove(list<Node*>::iterator it){
+    (*it)->setParent(NULL);
     return children.erase(it);
 }
 

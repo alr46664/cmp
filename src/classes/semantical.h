@@ -2,10 +2,9 @@
 #define SEMANTICAL_H
 
 // C++ INCLUDES
-#include <iostream> // cin, getline
-#include <map> // map
+#include <iostream> // cin, getline, endl
 #include <string> // string
-#include <stack> // stack
+#include <map> // map
 #include <list> // list
 #include <initializer_list> // pass {} arrays to functions
 
@@ -15,25 +14,32 @@
 // custom includes
 #include "node.h" // Node class
 #include "error.h" // Error class
+#include "defined.h" // Defined class
+#include "context.h" // Context class
 #include "utility.h" // utility class
 
 class Semantical {
 private:
-    // list of nodes from the AST
-    std::list<Node*> operate;
-    // the top node of the list
-    Node* top;
+    // size of contexts list
+    int context_size;
 
     // private functions
+    Context* findContext(Node* node);
+    Context* findContext(std::string name, Node* node);
+    Defined* find(std::string name, Node* node);
 
-    void clear();
 public:
 
-    Semantical (Node* p) {
-        operate.push_back(top = p);
-    };
+    // we need to pass the program node (global context)
+    Semantical() {
+        context_size = 0;
+    }
 
-    void run();
+    void addContext(Node* n);
+
+    Defined& get(Node* n);
+    void set(Node* n, std::string t, int s = 0);
+
 };
 
 #endif // SEMANTICAL_H
