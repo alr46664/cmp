@@ -9,36 +9,28 @@ comments ("//".*)
 invalid [^a-zA-Z0-9\n\t _\(\{\}\)\,\;\=\+\-\*\/\<\>\&\|\!]
 
 %{
-    #include <string.h>
-    #include <stdlib.h>
-    #include <stdio.h>
-    int lines = 1;
-    int pos = 0;
+    #include <iostream>
+    #include <string>
+
+    #include "classes/error.h"
+
+    int lex_lines = 1;
 %}
 %%
-{invalid} {
-    printf("ERROR \"%s\" %d\n", yytext, lines);
-    fprintf(stderr, "ERROR: (Line %d) Invalid character \"%s\" found.\n\n", lines, yytext);
-    exit(1);}
 {line} {
     /* count and ignore lines */
-    pos = 0;
-    lines++;}
+    lex_lines++;}
 ({non_printable}+|{comments}) {/* ignore nonprintable chars and comments */}
 (var|let|def|if|else|while|return|break|continue) {
-    printf("KEY \"%s\" %d\n", yytext, lines);}
+    std::cout << "KEY \"" << yytext << "\" " << std::to_string(lex_lines) << std::endl;}
 {letter}(_|{alphanum})* {
-    printf("ID \"%s\" %d\n", yytext, lines);}
+    std::cout << "ID \"" << yytext << "\" " << std::to_string(lex_lines) << std::endl;}
 {digits}+ {
-    printf("DEC \"%s\" %d\n", yytext, lines);}
+    std::cout << "DEC \"" << yytext << "\" " << std::to_string(lex_lines) << std::endl;}
 ({symbols}|"<="|">="|"=="|"!="|"&&"|"||"|"!") {
-    printf("SYM \"%s\" %d\n", yytext, lines);}
+    std::cout << "SYM \"" << yytext << "\" " << std::to_string(lex_lines) << std::endl;}
+(.) {
+    std::cout << "ERROR \"" << yytext << "\" " << std::to_string(lex_lines) << std::endl;
+    throw Error(std::string("Invalid character \"") + yytext + "\" found.\n\n", "ERROR", lex_lines, ERR_LEX);
+    }
 %%
-//
-#define MIN_ARGC 2
-int main(int argc, char **argv) {
-    // esta funcao ira ler o stdin e printar no stdout
-    // o resultado da tokenizacao (scaneamento) feito pelo
-    // analisador lexico descrito acima
-    return yylex();
-}

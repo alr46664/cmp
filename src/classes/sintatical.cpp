@@ -406,7 +406,7 @@ void Sintatical::run(){
         // Node* p = top->getParent();
         // if (p != NULL)
         //     cout << "PARENT: " << *p << "\n";
-        cout <<     "TOP:    " << *top << "\n\n";
+        // cout <<     "TOP:    " << *top << "\n\n";
         // check the children nodes
              if (top->getType() == AST_PROGRAM)    check_program();
         else if (top->getType() == AST_DECFUNC)    check_decfunc();

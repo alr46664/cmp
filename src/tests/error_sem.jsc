@@ -1,1 +1,8 @@
- 
+// two main functions
+def main() {
+    var q;
+}
+
+def main(){
+    return 5;
+}

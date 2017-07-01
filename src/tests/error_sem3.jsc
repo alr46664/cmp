@@ -1,0 +1,13 @@
+
+// trying to use variable defined inside an if, outside the if statement
+
+def main(c,x){
+    if (c > 7){
+        var q;
+        q = c*2;
+        return q;
+    }
+    return q;
+}
+
+

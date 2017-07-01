@@ -1,0 +1,10 @@
+
+// trying to use variable defined inside an if, outside the if statement
+
+def main(c) {
+    while(c > 10){
+        var q = c/2;
+        c = c - q;
+    }
+    return q+c;
+}

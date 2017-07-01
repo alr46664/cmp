@@ -1,0 +1,12 @@
+
+// using a function before declaration does not issue errors
+// (USING JAVASCRIPT pattern of function definition inside
+// the heap (tree parsing is done in level-first order))
+
+def main(){
+    return bla(5);
+}
+
+def bla(c) {
+    return c;
+}

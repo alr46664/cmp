@@ -1,0 +1,5 @@
+// binary operator wrong
+
+def main(c) {
+    return -c+5+++;
+}

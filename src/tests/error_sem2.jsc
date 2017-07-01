@@ -1,0 +1,7 @@
+
+//variables with the same name
+var q;
+
+def main (){
+    var q;
+}

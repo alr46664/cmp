@@ -35,12 +35,18 @@
 
 # ignore arquivos que nao precisamos manter estado no git
 .directory
+
 lex.yy.c
-lex
-syn
-gen
+lex.yy.cc
+lex.yy.cpp
+
+compilador
+
 *.lex
 *.syn
 *.asm
+
 *.sublime-project
 *.sublime-workspace
+
+*.zip
