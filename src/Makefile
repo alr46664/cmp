@@ -3,12 +3,10 @@
 MIPS=qtspim
 
 # TO COMPILE THIS SOURCE CODE, YOU WILL NEED GCC / G++ >= 4.8
-# compilador c, linkar com o flex,
-GCC=gcc
-CFLAGS=-ggdb -g3 -lfl -lm
-
 GPP=g++
-CPPFLAGS=-Wno-write-strings -ggdb  -g3 -lfl -lm -std=c++11
+CPPFLAGS=-lfl -lm -Wno-write-strings -std=c++11
+CPPFLAGS_DEBUG=-ggdb -g3
+CPPFLAGS_RELEASE=-march=native -O2
 
 # VERIFICACAO DE LEAKS DE MEMORIA
 VALGRIND=valgrind
@@ -24,10 +22,12 @@ OBJ_COMPILER=main.o classes/node.o classes/error.o classes/operate.o classes/par
 
 # binarios
 COMPILER_BIN=compilador
+COMPILER_BIN_REL=$(COMPILER_BIN).release
+COMPILER_BIN_DEB=$(COMPILER_BIN).debug
 
 # default do make
 default: full_clean
-	@$(MAKE) $(COMPILER_BIN)
+	@$(MAKE) $(COMPILER_BIN_REL)
 
 
 # rode o simulador MIPS (SPIM)
@@ -40,11 +40,21 @@ default: full_clean
 # rode o analisador sintatico
 # sintaxe:
 # 		make arquivo_jsc_a_ser_analisado.syn
-%.lex %.syn %.asm: $(COMPILER_BIN)
+%.lex %.syn %.asm: $(COMPILER_BIN_REL)
 	@echo -e "\n\tExecutando compilador ...\n"
 	@./$(COMPILER_BIN) $*.jsc $@
 	@echo -e "Resultado:\n"
 	@cat $@
+
+# rode a compilacao em modo release
+$(COMPILER_BIN_REL): CPPFLAGS += $(CPPFLAGS_RELEASE)
+$(COMPILER_BIN_REL): $(COMPILER_BIN)
+
+
+# rode a compilacao em modo debug
+$(COMPILER_BIN_DEB): CPPFLAGS += $(CPPFLAGS_DEBUG)
+$(COMPILER_BIN_DEB): $(COMPILER_BIN)
+
 
 # compile o analisador semantico/sintatico e gerador
 $(COMPILER_BIN): $(OBJ_COMPILER)
