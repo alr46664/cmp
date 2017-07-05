@@ -231,12 +231,43 @@ void Parser::parse(string t, string v, int l){
                                  token, line, ERR_TOKEN_UNDEF);
 }
 
-Node* Parser::getProgramAST(){
-    return program;
-}
-
 // reduce memory usage of the c++ compiler
 void Parser::clear(){
     token = val = "";
     operate.clear();
+}
+
+// parse the token stream into an AST
+void Parser::run(){
+    // create default functions
+    // create print default function
+    parse(T_KEY, "def", 0);
+    parse(T_ID, "print", 0);
+    parse(T_SYM, "(", 0);
+    parse(T_ID, "a", 0);
+    parse(T_SYM, ")", 0);
+    parse(T_SYM, "{", 0);
+    parse(T_SYM, "}", 0);
+
+    // store the whole stdin / cin line
+    int line;
+    string token, val, input;
+    // read until EOF
+    while(getline(cin, input)){
+        size_t space1 = input.find_first_of(' ');
+        size_t space2 = input.find_last_of(' ');
+        if (space1 != string::npos && space2 != string::npos){
+            token = input.substr(0, space1);
+            val = input.substr(space1+2, space2-space1-3);
+            line = atoi(input.substr(space2, string::npos).c_str());
+        }
+        // process token and val
+        parse(token, val, line);
+    }
+    // release unneeded memory from parser
+    clear();
+}
+
+Node* Parser::getProgramAST(){
+    return program;
 }

@@ -43,6 +43,8 @@ private:
     void parse_key();
     void parse_dec();
     void parse_sym();
+
+    void clear();
 public:
 
     //   MEMBER
@@ -61,8 +63,8 @@ public:
         precedence_un["u-"] = 7;
     };
 
-    void clear();
     void parse(std::string t, std::string v, int l);
+    void run();
     Node* getProgramAST();
 };
 

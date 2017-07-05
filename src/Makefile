@@ -18,7 +18,7 @@ VALGRIND_ARGS=--leak-check=full --show-leak-kinds=all -v
 # OBJ_CPP_FILES := $(notdir $(CPP_FILES:.cpp=.o))
 
 # arquivos objeto de cada programa (lexico e codegen)
-OBJ_COMPILER=main.o classes/node.o classes/error.o classes/operate.o classes/parser.o classes/sintatical.o classes/semantical.o classes/context.o classes/defined.o lex.yy.o
+OBJ_COMPILER=main.o classes/node.o classes/error.o classes/operate.o classes/parser.o classes/sintatical.o classes/semantical.o classes/context.o classes/defined.o classes/codegen.o lex.yy.o
 
 # binarios
 COMPILER_BIN=compilador

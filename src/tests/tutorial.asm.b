@@ -44,6 +44,8 @@ tion writes register $ra (31), the return address from a procedure call.
 These two registers are explained in the next section.
 
 # how to do function calls
+*** stack frame size has to be a multiple of 8 and its minimum size is 24 bytes
+
     I) CALLER (before calling the function):
 
         1. Pass arguments. By convention, the first four arguments are passed in
@@ -173,6 +175,10 @@ These two registers are explained in the next section.
 
         # *address = rt (store 32 bit word content)
         sw rt, address
+
+        # rdest = rsrc (copy 32 bit word content between registers)
+        move rdest, rsrc
+
 
 
     # BRANCH

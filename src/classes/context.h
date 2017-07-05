@@ -30,6 +30,7 @@ public:
 
     void add(std::string n, std::string t, int s = 0);
     std::map<std::string, Defined>::iterator find(std::string n);
+    std::map<std::string, Defined>::iterator find(std::string n, int& pos);
 
     std::map<std::string, Defined>::iterator begin();
     std::map<std::string, Defined>::iterator end();
