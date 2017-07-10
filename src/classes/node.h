@@ -58,6 +58,8 @@ public:
     std::list<Node*>::reverse_iterator rbegin();
     std::list<Node*>::reverse_iterator rend();
 
+    int find(Node* n);
+
     Node* operator[](int i){
         if (i < children.size() && i >= 0) {
             std::list<Node*>::iterator it = children.begin();

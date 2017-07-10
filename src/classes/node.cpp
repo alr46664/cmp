@@ -35,6 +35,20 @@ Context* Node::getContext(){
     return context;
 }
 
+// find node n child position
+// -1 means not found
+int Node::find(Node *n){
+    list<Node*>::iterator it;
+    int i = 0;
+    for (it = begin(); it != end(); ++it){
+        if (*it == n) break;
+        i++;
+    }
+    if (it == end())
+        i = -1;
+    return i;
+}
+
 list<Node*>::iterator Node::begin(){
     return children.begin();
 }

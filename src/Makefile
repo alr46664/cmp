@@ -12,13 +12,13 @@ CPPFLAGS_RELEASE=-march=native -O2
 VALGRIND=valgrind
 VALGRIND_ARGS=--leak-check=full --show-leak-kinds=all -v
 
-# # encontre todos os arquivos .CPP e passe-os para a
-# # extensao .O
-# CPP_FILES := $(wildcard *.cpp)
-# OBJ_CPP_FILES := $(notdir $(CPP_FILES:.cpp=.o))
+# encontre todos os arquivos .CPP e passe-os para a
+# extensao .O
+CPP_FILES := $(wildcard *.cpp classes/*.cpp)
+OBJ_CPP_FILES := $(CPP_FILES:.cpp=.o)
 
 # arquivos objeto de cada programa (lexico e codegen)
-OBJ_COMPILER=main.o classes/node.o classes/error.o classes/operate.o classes/parser.o classes/sintatical.o classes/semantical.o classes/context.o classes/defined.o classes/codegen.o lex.yy.o
+OBJ_COMPILER=$(OBJ_CPP_FILES) lex.yy.o
 
 # binarios
 COMPILER_BIN=compilador

@@ -1,8 +1,16 @@
 // TODOS ESSES TESTES FUNCIONAM:
 
-// def main(c,q){
-//     return c+7+8;
-// }
+// let x;
+
+def bla(c,q){
+    return c+q;
+}
+
+def main(){
+    // let c = 5+8;
+    print(bla(5,4)*5);
+    // return 4+2;
+}
 
 // def main(c,q){
 
@@ -103,16 +111,16 @@
 //     }
 // }
 
-def main() {
-    var c = 10;
-    while(c > 0){
-        if (c == 5){
-            continue;
-        }
-        if (c == 2){
-            break;
-        }
-        print(c);
-        c = c-1;
-    }
-}
+// def main() {
+//     var c = 10;
+//     while(c > 0){
+//         if (c == 5){
+//             continue;
+//         }
+//         if (c == 2){
+//             break;
+//         }
+//         print(c);
+//         c = c-1;
+//     }
+// }

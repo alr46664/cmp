@@ -26,3 +26,4 @@ std::string Defined::getType() const{
 int Defined::getArgSize() const{
     return arg_size;
 }
+
