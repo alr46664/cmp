@@ -7,14 +7,19 @@ using namespace std;
 
 
 // find the position of the node n relative to its parents
-string Codegen::get_dest_reg(Node *n){
+string Codegen::get_dest_reg(Node *n, string *cmp_reg){
     Node *parent = n->getParent();
     // find the node position in its parent and set the dest register accordingly
     int pos = parent->find(n);
-    string dest_reg = "$a0";
+    string dest_r = "$a0";
+    string cmp_r = "$a1";
+    string dest_reg = dest_r;
     if (pos != 0) {
-        dest_reg = "$a1";
+        dest_reg = cmp_r;
+        cmp_r = dest_r;
     }
+    if (cmp_reg != NULL)
+        *cmp_reg = cmp_r;
     // // TODO: remote debugging statements
     // cout << "\tPRT: " << *parent << "\n";
     // cout << "\tPROCESSING: " << *n << "\n";
@@ -43,7 +48,7 @@ string Codegen::jump(string reg){
 string Codegen::function_save(){
     return save_reg("$ra") +
         save_reg("$fp") +
-        copy_reg("$fp", "$sp");
+        copy_reg("$t1", "$sp");
 }
 
 // restore function registers into stack
@@ -108,6 +113,51 @@ string Codegen::copy_reg(string dest, string src){
 }
 
 
+// process a math expression taking place
+void Codegen::process_op(){
+    int operands_sz = operands.size();
+    int math_sz = math_op.size();
+    // get nodes and destination, cmp regs
+    Node *op = ( math_sz > 0 ? math_op.top() : NULL);
+    string cmp_reg, dest_reg, op2, op1;
+    // TODO remove debug
+    // cout << "GOT OP: \t" << *op << "\n\n";
+    while( op != NULL && ((Utility::isBinaryOp(op->getType()) && operands_sz >= 2) || (Utility::isUnaryOp(op->getType()) && operands_sz >= 1)) ) {
+        dest_reg = get_dest_reg(op, &cmp_reg);
+        op2 = operands.top(); operands.pop();
+        op1 = operands.top(); operands.pop();
+        // TODO remove debug
+        // cout << "OP 2: \t" << op2 << "\n\n";
+        // cout << "OP 1: \t" << op1 << "\n\n";
+        if (op->getType() == "+"){
+            operands.push(
+                // save_reg(cmp_reg) +
+                op1 +
+                op2 +
+                add(dest_reg, "$a0", "$a1")
+                // + load_reg(cmp_reg)
+                );
+        }
+        // update control variables
+        math_op.pop();
+        operands_sz = operands.size();
+        math_sz = math_op.size();
+        op = ( math_sz > 0 ? math_op.top() : NULL);
+        // TODO remove debug
+        // cout << "GOT OP: \t" << *op << "\n\n";
+    }
+    // print all operands if there are no math operations remaining
+    if (math_sz == 0){
+        // TODO remove debug
+        // cout << "EMPTY MATH\n\n";
+        while( !operands.empty() ) {
+            ps.push_to_print( operands.top(), 0 );
+            operands.pop();
+        }
+    }
+}
+
+
 
 void Codegen::generate_program(Node *n){
     // create the PROGRAM context
@@ -115,6 +165,7 @@ void Codegen::generate_program(Node *n){
     // we are at the beginning of the program, create default structure
     ps.push_to_print(  ".data\n\n.text\n\n"               );
     ps.push_to_print(  "_f_print:\n"                  );
+    ps.push_to_print(  copy_reg("$fp", "$t1")             );
     ps.push_to_print(  load_reg("$a0")                    );
     ps.push_to_print(  load_reg("$v0", "1")               );
     ps.push_to_print(  "  syscall\t\t# print integer\n"   );
@@ -147,6 +198,7 @@ void Codegen::generate_decfunc(Node *n){
     sym_map[func_name] = MemContext();
     // generate the asm
     ps.push_to_print(  func_name + ":\n"  );
+    ps.push_to_print(  copy_reg("$fp", "$t1")  );
     ps.push_to_print(  function_return() , 0 );
 }
 
@@ -289,17 +341,19 @@ void Codegen::generate_end_arg(Node *n){
 // nodes not specified above are being treated below
 
 void Codegen::generate_sym(Node *n){
-    // get the destination register for n
-    Node *parent = n->getParent();
-    string dest_reg = get_dest_reg(n);
-    // // if we are in one of the following cases, we should only use register
-    // // 0 ($a0)
-    // if (parent->getType() == AST_DECVAR){
-    //     dest_reg = "$a0";
-    // }
-    if (n->getType() == "+"){
-        ps.push_to_print( add(dest_reg, "$a0", "$a1") , 0 );
+   if (n->getType() == "+"){
+        math_op.push(n);
     }
+
+    // get the destination register for n
+    // Node *parent = n->getParent();
+    // string cmp_reg;
+    // string dest_reg = get_dest_reg(n, &cmp_reg);
+    // if (n->getType() == "+"){
+        // ps.push_to_print( load_reg(cmp_reg) , 0 );
+        // ps.push_to_print( add(dest_reg, "$a0", "$a1") , 0 );
+        // ps.push_to_print( save_reg(cmp_reg) );
+    // }
 }
 
 void Codegen::generate_id(Node *n){
@@ -314,15 +368,18 @@ void Codegen::generate_id(Node *n){
         if (parent->getType() != AST_DECVAR || (parent->getType() == AST_DECVAR && pos == 1)){
             // we know were trying to get a variable from the stack for a VARIABLE INITIALIZATION,
             // ARGLIST of a funccall, or expression
+            // (in other words, this id is a variable of an expression)
             try {
                 int stack_pos = sym_map[func_name].get(n);
                 // if we reach here, we have a local variable
-                ps.push_to_print( load_reg_from_fp(dest_reg, to_string(stack_pos)), 0 );
+                operands.push( load_reg_from_fp(dest_reg, to_string(stack_pos)) );
             } catch(Error& e) {
                 int stack_pos = sym_map[CG_FNAME_PROGRAM].get(n);
                 // if we reach here, we have a global variable
-                ps.push_to_print( load_reg_from_t0(dest_reg, to_string(stack_pos)), 0 );
+                operands.push( load_reg_from_t0(dest_reg, to_string(stack_pos)) );
             }
+            // process this new operand
+            process_op();
         }
     }
 }
@@ -330,7 +387,9 @@ void Codegen::generate_id(Node *n){
 void Codegen::generate_dec(Node *n){
     // get the destination register for n
     string dest_reg = get_dest_reg(n);
-    ps.push_to_print( load_reg(dest_reg, n->getType()), 0 );
+    // process new operand
+    operands.push( load_reg(dest_reg, n->getType()) );
+    process_op();
 }
 
 

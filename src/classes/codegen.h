@@ -8,6 +8,7 @@
 #include <string> // string
 #include <map> // map
 #include <list> // list
+#include <stack> // stack
 
 // custom includes
 #include "print_stack.h" // PrintStack class
@@ -29,6 +30,10 @@ private:
     // stack of nodes
     std::list<Node*> operate;
 
+    // stack of math operators and operands
+    std::stack<Node*> math_op;
+    std::stack<std::string> operands;
+
     // save the memory / symbol map
     std::map<std::string, MemContext> sym_map;
 
@@ -44,7 +49,7 @@ private:
 
     void push_to_insert(std::list<std::string>::iterator it);
 
-    std::string get_dest_reg(Node *n);
+    std::string get_dest_reg(Node *n, std::string *cmp_reg = NULL);
 
     std::string add(std::string dest, std::string src1, std::string src2);
     std::string sub(std::string dest, std::string src1, std::string src2);
@@ -68,6 +73,7 @@ private:
 
     std::string copy_reg(std::string dest, std::string src);
 
+    void process_op();
     // reserved words and structures of the lang
     void generate_program (Node *n);
     void generate_decfunc (Node *n);
