@@ -208,11 +208,15 @@ string Codegen::generate(Node *n){
 
 
     } else if (n->getType() == AST_BREAK){
-        // TODO
+        // branch out of the while loop
+        string end_label = string("_while_end_")  + to_string(while_count);
+        res += Assembly::branch(end_label);
 
 
     } else if (n->getType() == AST_CONTINUE){
-        // TODO
+        // branch out of the while loop
+        string while_label = string("_while_begin_")  + to_string(while_count);
+        res += Assembly::branch(while_label);
 
 
     } else if (n->getType() == AST_PROGRAM){

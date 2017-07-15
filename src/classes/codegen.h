@@ -44,7 +44,8 @@ public:
 
     //   MEMBER
     Codegen(Node* p){
-        if_count = while_count = 0;
+        if_count = 0;
+        while_count = 0;
         program = p;
     };
 
