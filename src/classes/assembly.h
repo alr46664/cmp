@@ -10,7 +10,9 @@ private:
 
 public:
 
-// math operations
+
+// ----------------------- MATH OPERATIONS ----------------------------
+
 
 static std::string add(std::string dest, std::string src1, std::string src2){
     return std::string("  add ") + dest+ ", " + src1 + ", " + src2 + "\n";
@@ -28,14 +30,24 @@ static std::string sub(std::string dest, std::string src1, std::string src2){
     return std::string("  sub ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
-// comparison operations
+static std::string neg(std::string dest, std::string src1){
+    return std::string("  neg ") + dest+ ", " + src1 + "\n";
+}
+
+
+// ----------------------- COMPARISON OPERATIONS ----------------------------
+
 
 static std::string lt(std::string dest, std::string src1, std::string src2){
     return std::string("  slt ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
 static std::string lte(std::string dest, std::string src1, std::string src2){
-    return std::string("  sle ") + dest+ ", " + src1 + ", " + src2 + "\n";
+    // return Assembly::lt(dest,src1,src2) +
+    //        Assembly::eq(src2,src1,src2) +
+    //        Assembly::a_or(dest,dest,src2);
+    // TODO fix error result from MIPS
+    return std::string("  sge ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
 static std::string gt(std::string dest, std::string src1, std::string src2){
@@ -43,7 +55,11 @@ static std::string gt(std::string dest, std::string src1, std::string src2){
 }
 
 static std::string gte(std::string dest, std::string src1, std::string src2){
-    return std::string("  sge ") + dest+ ", " + src1 + ", " + src2 + "\n";
+    // return Assembly::gt(dest,src1,src2) +
+    //        Assembly::eq(src2,src1,src2) +
+    //        Assembly::a_or(dest,dest,src2);
+    // // TODO fix error result from MIPS
+    return std::string("  sle ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
 static std::string eq(std::string dest, std::string src1, std::string src2){
@@ -53,6 +69,22 @@ static std::string eq(std::string dest, std::string src1, std::string src2){
 static std::string neq(std::string dest, std::string src1, std::string src2){
     return std::string("  sne ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
+
+
+// ----------------------- LOGICAL OPERATIONS ----------------------------
+
+
+static std::string a_and(std::string dest, std::string src1, std::string src2){
+    return std::string("  and ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+static std::string a_or(std::string dest, std::string src1, std::string src2){
+    return std::string("  or ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+
+// ----------------------- FUNCTION OPERATIONS ----------------------------
+
 
 // jump to code
 static std::string jump(std::string reg){
@@ -84,6 +116,10 @@ static std::string function_return(std::string func_name){
         Assembly::load_reg("$fp") +
         Assembly::jump("$ra") + "\n";
 }
+
+
+// ----------------------- MEMORY OPERATIONS ----------------------------
+
 
 // move stack back
 static std::string move_stack_back(){

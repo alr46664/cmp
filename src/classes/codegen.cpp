@@ -225,7 +225,12 @@ string Codegen::generate(Node *n){
             res += Assembly::eq(dest_reg, "$a0", "$a1");
         } else if (n->getType() == "!="){
             res += Assembly::neq(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "&&"){
+            res += Assembly::a_and(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "||"){
+            res += Assembly::a_or(dest_reg, "$a0", "$a1");
         }
+        //
        // load protected registers back in
         res += Assembly::load_reg(cmp_reg);
         // TODO add other operations
