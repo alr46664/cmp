@@ -1,6 +1,6 @@
 // TODOS ESSES TESTES FUNCIONAM:
 
-// let x;
+let x;
 
 def bla(c,q){
     return c+q;
@@ -43,10 +43,12 @@ def main(){
     // }
     // print(12+8);
     // print((-5)+2);
-    let c = 5+8;
-    print(c);
-    c = 1+2;
-    print(c);
+    // let c = 5+8;
+    // print(c);
+    // c = 1+2;
+    // print(c);
+    x = 4+2;
+    print(x);
     // return print(c+2>10);
 }
 

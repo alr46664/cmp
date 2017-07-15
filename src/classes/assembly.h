@@ -88,7 +88,12 @@ static std::string a_or(std::string dest, std::string src1, std::string src2){
 
 // jump to code
 static std::string jump(std::string reg){
-    return std::string("  j ") + reg+ "\n";
+    return std::string("  j ") + reg + "\n";
+}
+
+// branch to code
+static std::string branch(std::string label){
+    return std::string("  b ") + label + "\n";
 }
 
 // branch not eq 0

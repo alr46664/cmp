@@ -154,7 +154,7 @@ string Codegen::generate(Node *n){
     } else if (n->getType() == AST_IF){
         int sz_child = n->size_children();
         list<Node*>::iterator it = n->begin();
-        string jmp_label  = string("_jmp_")  + to_string(if_count);
+        string jmp_label  = string("_if_jmp_")  + to_string(if_count);
         string if_label   = string("_if_")   + to_string(if_count);
         string else_label = string("_else_") + to_string(if_count);
         // node 1 (expr) - generate the expression asm
@@ -181,7 +181,24 @@ string Codegen::generate(Node *n){
 
 
     } else if (n->getType() == AST_WHILE){
-        // TODO
+        int sz_child = n->size_children();
+        list<Node*>::iterator it = n->begin();
+        // begin of while
+        string while_label  = string("_while_begin_")  + to_string(while_count);
+        // end of while
+        string end_label  = string("_while_end_")  + to_string(while_count);
+        // generate while begin
+        res += "  " + while_label + ": \n" ;
+        // node 1 (expr) - generate the expression asm
+        res += generate(*(it++)) ;
+        // branch out of loop if false
+        res += Assembly::beqz(end_label, "$a0") ;
+        // node 2 (block) - generate
+        res += generate(*(it++)) +
+               // branch to while label and create end of while
+               Assembly::branch(while_label) +
+               "  " + end_label + ": \n" ;
+        while_count++;
 
 
     } else if (n->getType() == AST_BREAK){
@@ -193,6 +210,8 @@ string Codegen::generate(Node *n){
 
 
     } else if (n->getType() == AST_PROGRAM){
+        // create a list of global vars
+        list<string> global_vars;
         // create the PROGRAM context
         sym_map[func_name = CG_FNAME_PROGRAM] = MemContext();
         // we are at the beginning of the program, create default structure
@@ -206,10 +225,17 @@ string Codegen::generate(Node *n){
               Assembly::load_reg("$a0", "0x0a")+
               "  syscall\t\t# print newline\n" +
               Assembly::function_return(func_name) ;
-        // weve reached the part of the program that declares the functions
+        // identify functions and variables here
         for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
             Node *child = *it;
+            if (child->getType() == AST_DECVAR){
+                // correct the funcname stack issue here
+                func_name = CG_FNAME_PROGRAM;
+                // gen code for decvars and store it inside a list stack
+                global_vars.push_back(generate(child));
+            }
             if (child->getType() == AST_DECFUNC){
+                // weve reached the part of the program that declares the functions
                 res += generate(child);
             }
         }
@@ -217,15 +243,12 @@ string Codegen::generate(Node *n){
                Assembly::copy_reg("$fp", "$sp") +
                Assembly::load_reg("$t0", "0x10000000") ;
         // global variables go here
-        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
-            Node *child = *it;
-            if (child->getType() == AST_DECVAR){
-                // correct the funcname stack issue here
-                func_name = CG_FNAME_PROGRAM;
-                // gen code
-                res += generate(child);
-            }
+        for (list<string>::iterator it = global_vars.begin(); it != global_vars.end(); ++it){
+            res += *it;
         }
+        // clean global var temp stack
+        global_vars.clear();
+        // generate main function here
         res += Assembly::function_save() +
                Assembly::function_call("_f_main") +
                Assembly::function_restore() +
