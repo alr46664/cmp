@@ -33,16 +33,18 @@ private:
 
     // save last function name here
     std::string func_name;
+    // save counts
+    int if_count, while_count;
 
     // PRIVATE FUNCTIONS
     std::string get_dest_reg(Node *n, std::string *cmp_reg = NULL);
-
 
     std::string generate(Node *n);
 public:
 
     //   MEMBER
     Codegen(Node* p){
+        if_count = while_count = 0;
         program = p;
     };
 

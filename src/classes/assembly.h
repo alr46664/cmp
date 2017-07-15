@@ -43,10 +43,7 @@ static std::string lt(std::string dest, std::string src1, std::string src2){
 }
 
 static std::string lte(std::string dest, std::string src1, std::string src2){
-    // return Assembly::lt(dest,src1,src2) +
-    //        Assembly::eq(src2,src1,src2) +
-    //        Assembly::a_or(dest,dest,src2);
-    // TODO fix error result from MIPS
+    // used sge because it does return 1 in the proper cases of lte
     return std::string("  sge ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
@@ -55,10 +52,7 @@ static std::string gt(std::string dest, std::string src1, std::string src2){
 }
 
 static std::string gte(std::string dest, std::string src1, std::string src2){
-    // return Assembly::gt(dest,src1,src2) +
-    //        Assembly::eq(src2,src1,src2) +
-    //        Assembly::a_or(dest,dest,src2);
-    // // TODO fix error result from MIPS
+    // used sle because it does return 1 in the proper cases of gte
     return std::string("  sle ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
@@ -73,6 +67,12 @@ static std::string neq(std::string dest, std::string src1, std::string src2){
 
 // ----------------------- LOGICAL OPERATIONS ----------------------------
 
+static std::string a_not(std::string dest, std::string src1){
+    // todo: FIX improper behavior
+    return Assembly::load_reg("$a1", "0") +
+        Assembly::eq(dest, src1, "$a1");
+    // return std::string("  not ") + dest+ ", " + src1 + "\n";
+}
 
 static std::string a_and(std::string dest, std::string src1, std::string src2){
     return std::string("  and ") + dest+ ", " + src1 + ", " + src2 + "\n";
@@ -83,13 +83,27 @@ static std::string a_or(std::string dest, std::string src1, std::string src2){
 }
 
 
-// ----------------------- FUNCTION OPERATIONS ----------------------------
+// ----------------------- BRANCH OPERATIONS ----------------------------
 
 
 // jump to code
 static std::string jump(std::string reg){
     return std::string("  j ") + reg+ "\n";
 }
+
+// branch not eq 0
+static std::string bnez(std::string label, std::string src1){
+    return std::string("  bnez ") + src1 + ", " + label + "\n";
+}
+
+// branch eq 0
+static std::string beqz(std::string label, std::string src1){
+    return std::string("  beqz ") + src1 + ", " + label + "\n";
+}
+
+
+// ----------------------- FUNCTION OPERATIONS ----------------------------
+
 
 // save function registers into stack
 static std::string function_save(){

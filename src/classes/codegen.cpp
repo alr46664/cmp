@@ -80,7 +80,7 @@ string Codegen::generate(Node *n){
 
 
     } else if (n->getType() == AST_ASSIGN) {
-        // generate_assign(n);
+        // TODO
 
 
     } else if (n->getType() == AST_FUNCCALL){
@@ -137,19 +137,44 @@ string Codegen::generate(Node *n){
 
 
     } else if (n->getType() == AST_IF){
-        // generate_if(n);
+        int sz_child = n->size_children();
+        list<Node*>::iterator it = n->begin();
+        string jmp_label  = string("_jmp_")  + to_string(if_count);
+        string if_label   = string("_if_")   + to_string(if_count);
+        string else_label = string("_else_") + to_string(if_count);
+        // node 1 (expr) - generate the expression asm
+        res += generate(*(it++)) +
+               Assembly::bnez(if_label, "$a0") ;
+        if (sz_child > 2){
+            res += Assembly::beqz(else_label, "$a0") ;
+        }
+        // no else, goto jump label
+        res += Assembly::jump(jmp_label) ;
+        // node 2 (if block) - generate block asm
+        res += "  " + if_label + ": \n" +
+               generate(*(it++)) +
+               Assembly::jump(jmp_label) ;
+        // node 3 (else block) - generate block asm
+        if (sz_child > 2){
+            res += "  " + else_label + ": \n" +
+                   generate(*(it++));
+        }
+        // jump statement
+        res += "  " + jmp_label + ": \n";
+        if_count++;
+        // TODO
 
 
     } else if (n->getType() == AST_WHILE){
-        // generate_while(n);
+        // TODO
 
 
     } else if (n->getType() == AST_BREAK){
-        // generate_break(n);
+        // TODO
 
 
     } else if (n->getType() == AST_CONTINUE){
-        // generate_continue(n);
+        // TODO
 
 
     } else if (n->getType() == AST_PROGRAM){
@@ -207,9 +232,12 @@ string Codegen::generate(Node *n){
             res += generate(*it);
         }
         // perform operation
+        // BINARY OPERATIONS
         if (n->getType() == "+"){
             res += Assembly::add(dest_reg, "$a0", "$a1");
-        } else if (n->getType() == "*"){
+        } else if (n->getType() == "-" && n->size_children() > 1){
+            res += Assembly::sub(dest_reg, "$a0", "$a1");
+        } if (n->getType() == "*"){
             res += Assembly::mul(dest_reg, "$a0", "$a1");
         } else if (n->getType() == "/"){
             res += Assembly::div(dest_reg, "$a0", "$a1");
@@ -229,11 +257,14 @@ string Codegen::generate(Node *n){
             res += Assembly::a_and(dest_reg, "$a0", "$a1");
         } else if (n->getType() == "||"){
             res += Assembly::a_or(dest_reg, "$a0", "$a1");
+        // UNARY OPERATORS
+        } else if (n->getType() == "!"){
+            res += Assembly::a_not(dest_reg, "$a0");
+        } else if (n->getType() == "-" && n->size_children() == 1){
+            res += Assembly::neg(dest_reg, "$a0");
         }
-        //
-       // load protected registers back in
+        // load protected registers back in
         res += Assembly::load_reg(cmp_reg);
-        // TODO add other operations
 
 
     } else if (n->getToken() == T_ID){

@@ -24,8 +24,26 @@ def main(){
     // print(11>=15);
     // print(11>=11);
     // print(11>=10);
-    let c = 5+8;
-    return print(c+2>10);
+    // print(!0);
+    // print(!5);
+    // print(-5)
+    // print(2-5);
+    // if (25 > 2){
+    //     print(75);
+    // }
+    // if (10 > 15){
+    //     print(10);
+    // } else {
+    //     print(45);
+    // }
+    // if (15 > 1){
+    //     print(80);
+    // } else {
+    //     print(15);
+    // }
+    // print(12+8);
+    // let c = 5+8;
+    // return print(c+2>10);
 }
 
 // def main(c,q){
