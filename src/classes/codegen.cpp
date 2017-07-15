@@ -50,8 +50,14 @@ string Codegen::generate(Node *n){
         list<Node*>::iterator it = n->begin();
         // get var name
         Node *n_id = *(it++);
-        // add var to the symbol table
-        sym_map[func_name].add(n_id);
+        // if var is not in the symbol table, create it,
+        // otherwise thats not needed
+        try {
+            sym_map[func_name].get(n_id);
+        } catch(Error& e) {
+            // add var to the symbol table
+            sym_map[func_name].add(n_id);
+        }
         // add variable to the stack / global place
         if (n->getParent()->getType() == AST_PROGRAM){
             // get the position of the variable in global stack

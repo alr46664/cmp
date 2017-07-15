@@ -1,12 +1,12 @@
 // TODOS ESSES TESTES FUNCIONAM:
 
-let x;
+// let x;
 
-def bla(c,q){
-    return c+q;
-}
+// def bla(c,q){
+//     return c+q;
+// }
 
-def main(){
+// def main(){
     // print(0||0);
     // print(0||1);
     // print(1||1);
@@ -47,10 +47,10 @@ def main(){
     // print(c);
     // c = 1+2;
     // print(c);
-    x = 4+2;
-    print(x);
-    // return print(c+2>10);
-}
+    // x = 4+2;
+    // print(x);
+//     return print(c+2>10);
+// }
 
 // def main(c,q){
 
@@ -78,6 +78,15 @@ def main(){
 //     var l=(-8+2)*5;
 //     return l;
 // }
+
+def main(){
+    let x;
+    while(x < 5){
+        let c = 8;
+        print(x+c);
+        x = x+1;
+    }
+}
 
 // def main(c,q){
 //     while(c){
