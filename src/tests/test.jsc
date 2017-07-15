@@ -2,14 +2,24 @@
 
 // let x;
 
-// def bla(c,q){
-//     return c+q;
-// }
+def bla(c,q){
+    return c+q;
+}
 
 def main(){
-    let c = 5+8;
-    print(c+10);
-    // return 4+2;
+    // let c = 5+8;
+    // print(10<=9);
+    // print(10<=10);
+    // print(10<=11);
+    print(10==10);
+    print(10==9);
+    // print(10>11);
+    // print(10>10);
+    // print(10>9);
+    // print(11>=15);
+    // print(11>=11);
+    // print(11>=10);
+    // return print(2<1);
 }
 
 // def main(c,q){

@@ -11,7 +11,6 @@
 #include <stack> // stack
 
 // custom includes
-#include "print_stack.h" // PrintStack class
 #include "mem_context.h" // MemContext class
 #include "node.h" // Node class
 #include "error.h" // Error class
@@ -26,33 +25,32 @@
 class Codegen {
 private:
     // MAIN PROGRAM DATA
-
-    // stack of nodes
-    std::list<Node*> operate;
-
-    // stack of math operators and operands
-    std::stack<Node*> math_op;
-    std::stack<std::string> operands;
+    Node* program;
 
     // save the memory / symbol map
     std::map<std::string, MemContext> sym_map;
 
     // create a print stack
-    PrintStack ps;
+    // PrintStack ps;
 
     // save last function name here
     std::string func_name;
 
     // PRIVATE FUNCTIONS
-    void commit_print_stack();
-    std::list<std::string>::iterator insert_print_stack(std::string s, int dir = 1);
-
-    void push_to_insert(std::list<std::string>::iterator it);
 
     std::string get_dest_reg(Node *n, std::string *cmp_reg = NULL);
 
     std::string add(std::string dest, std::string src1, std::string src2);
     std::string sub(std::string dest, std::string src1, std::string src2);
+    std::string mul(std::string dest, std::string src1, std::string src2);
+    std::string div(std::string dest, std::string src1, std::string src2);
+
+    std::string lt(std::string dest, std::string src1, std::string src2);
+    std::string lte(std::string dest, std::string src1, std::string src2);
+    std::string gt(std::string dest, std::string src1, std::string src2);
+    std::string gte(std::string dest, std::string src1, std::string src2);
+    std::string eq(std::string dest, std::string src1, std::string src2);
+    std::string neq(std::string dest, std::string src1, std::string src2);
 
     std::string jump(std::string reg);
     std::string function_save();
@@ -73,36 +71,12 @@ private:
 
     std::string copy_reg(std::string dest, std::string src);
 
-    void process_op();
-    // reserved words and structures of the lang
-    void generate_program (Node *n);
-    void generate_decfunc (Node *n);
-    void generate_decvar (Node *n);
-    void generate_assign (Node *n);
-    void generate_funccall (Node *n);
-    void generate_arglist (Node *n);
-    void generate_paramlist (Node *n);
-    void generate_block (Node *n);
-    void generate_return (Node *n);
-    void generate_if (Node *n);
-    void generate_while (Node *n);
-    void generate_break (Node *n);
-    void generate_continue (Node *n);
-    // tokens not idenfied by the above cases
-    void generate_sym (Node *n);
-    void generate_id (Node *n);
-    void generate_dec (Node *n);
-    // pseudo nodes used by codegen
-    void generate_block_end (Node *n);
-    void generate_end_statement(Node *n);
-    void generate_end_arg(Node *n);
-
-    void generate(Node *n);
+    std::string generate(Node *n);
 public:
 
     //   MEMBER
     Codegen(Node* p){
-        operate.push_back( p );
+        program = p;
     };
 
     void run();

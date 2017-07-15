@@ -20,11 +20,6 @@ string Codegen::get_dest_reg(Node *n, string *cmp_reg){
     }
     if (cmp_reg != NULL)
         *cmp_reg = cmp_r;
-    // // TODO: remote debugging statements
-    // cout << "\tPRT: " << *parent << "\n";
-    // cout << "\tPROCESSING: " << *n << "\n";
-    // cout << "\tPOS: " << pos << "\n\n";
-    // // END DEBUG
     return dest_reg;
 }
 
@@ -35,8 +30,42 @@ string Codegen::add(string dest, string src1, string src2){
     return string("  add ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
+string Codegen::mul(string dest, string src1, string src2){
+    return string("  mul ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+string Codegen::div(string dest, string src1, string src2){
+    return string("  div ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
 string Codegen::sub(string dest, string src1, string src2){
     return string("  sub ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+// comparison operations
+
+string Codegen::lt(string dest, string src1, string src2){
+    return string("  slt ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+string Codegen::lte(string dest, string src1, string src2){
+    return string("  sle ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+string Codegen::gt(string dest, string src1, string src2){
+    return string("  sgt ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+string Codegen::gte(string dest, string src1, string src2){
+    return string("  sge ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+string Codegen::eq(string dest, string src1, string src2){
+    return string("  seq ") + dest+ ", " + src1 + ", " + src2 + "\n";
+}
+
+string Codegen::neq(string dest, string src1, string src2){
+    return string("  sne ") + dest+ ", " + src1 + ", " + src2 + "\n";
 }
 
 // jump to code
@@ -46,9 +75,9 @@ string Codegen::jump(string reg){
 
 // save function registers into stack
 string Codegen::function_save(){
-    return save_reg("$ra") +
-        save_reg("$fp") +
-        copy_reg("$t1", "$sp");
+    return save_reg("$ra")        +
+           save_reg("$fp")        +
+           copy_reg("$t1", "$sp") ;
 }
 
 // restore function registers into stack
@@ -113,364 +142,242 @@ string Codegen::copy_reg(string dest, string src){
 }
 
 
-// process a math expression taking place
-void Codegen::process_op(){
-    int operands_sz = operands.size();
-    int math_sz = math_op.size();
-    // get nodes and destination, cmp regs
-    Node *op = ( math_sz > 0 ? math_op.top() : NULL);
-    string cmp_reg, dest_reg, op2, op1;
-    // TODO remove debug
-    // cout << "GOT OP: \t" << *op << "\n\n";
-    while( op != NULL && ((Utility::isBinaryOp(op->getType()) && operands_sz >= 2) || (Utility::isUnaryOp(op->getType()) && operands_sz >= 1)) ) {
-        dest_reg = get_dest_reg(op, &cmp_reg);
-        op2 = operands.top(); operands.pop();
-        op1 = operands.top(); operands.pop();
-        // TODO remove debug
-        // cout << "OP 2: \t" << op2 << "\n\n";
-        // cout << "OP 1: \t" << op1 << "\n\n";
-        if (op->getType() == "+"){
-            operands.push(
-                // save_reg(cmp_reg) +
-                op1 +
-                op2 +
-                add(dest_reg, "$a0", "$a1")
-                // + load_reg(cmp_reg)
-                );
-        }
-        // update control variables
-        math_op.pop();
-        operands_sz = operands.size();
-        math_sz = math_op.size();
-        op = ( math_sz > 0 ? math_op.top() : NULL);
-        // TODO remove debug
-        // cout << "GOT OP: \t" << *op << "\n\n";
-    }
-    // print all operands if there are no math operations remaining
-    if (math_sz == 0){
-        // TODO remove debug
-        // cout << "EMPTY MATH\n\n";
-        while( !operands.empty() ) {
-            ps.push_to_print( operands.top(), 0 );
-            operands.pop();
-        }
-    }
-}
-
-
-
-void Codegen::generate_program(Node *n){
-    // create the PROGRAM context
-    sym_map[func_name = CG_FNAME_PROGRAM] = MemContext();
-    // we are at the beginning of the program, create default structure
-    ps.push_to_print(  ".data\n\n.text\n\n"               );
-    ps.push_to_print(  "_f_print:\n"                  );
-    ps.push_to_print(  copy_reg("$fp", "$t1")             );
-    ps.push_to_print(  load_reg("$a0")                    );
-    ps.push_to_print(  load_reg("$v0", "1")               );
-    ps.push_to_print(  "  syscall\t\t# print integer\n"   );
-    ps.push_to_print(  load_reg("$v0", "11")              );
-    ps.push_to_print(  load_reg("$a0", "0x0a")            );
-    ps.push_to_print(  "  syscall\t\t# print newline\n"   );
-    ps.push_to_print(  function_return()                  );
-    // weve reached the end of the program, create main function and
-    // save it into the PrintStack
-    ps.setMain(  ps.push_to_print(  "main:\n"                                    )  );
-    // continue with main creation
-    ps.push_to_print(            copy_reg("$fp", "$sp")                         );
-    ps.push_to_print(            load_reg("$t0", "0x10000000")                  );
-    // save this position to the print stack (global variables go here)
-    ps.setGlobalVar( ps.push_to_print(  function_save()                              ) );
-    ps.push_to_print(            function_call("_f_main")                       );
-    ps.push_to_print(            function_restore()                             );
-    ps.push_to_print(            "  move $a0, $v0\n"                            );
-    ps.push_to_print(            load_reg("$v0", "17")                          );
-    ps.push_to_print(            "  syscall\t\t# call exit with errcode $v0\n"  );
-}
-
-void Codegen::generate_decfunc(Node *n){
-    // create the function before the main function
-    ps.clear_to_insert();
-    ps.push_to_insert( ps.getMain() );
-    // name of the function
-    func_name = "_f_" + (*n)[0]->getType();
-    // create the function context
-    sym_map[func_name] = MemContext();
-    // generate the asm
-    ps.push_to_print(  func_name + ":\n"  );
-    ps.push_to_print(  copy_reg("$fp", "$t1")  );
-    ps.push_to_print(  function_return() , 0 );
-}
-
-void Codegen::generate_decvar(Node *n){
-    // get var name
-    Node *n_id = *n->begin();
-    // add var to the symbol table
-    sym_map[func_name].add(n_id);
-    // add a endstatement to the decvar
-    n->add(T_SYM, AST_ENDSTATEMENT, n->getLine());
-    // add variable to the stack / global place
-    if (n->getParent()->getType() == AST_PROGRAM){
-        // set the global variables initialization point
-        ps.clear_to_insert();
-        ps.push_to_insert( ps.getGlobalVar() );
-        // get the position of the variable in global stack
-        int pos = sym_map[func_name].get(n_id);
-        // initialize global var
-        ps.push_to_print( load_reg("$a1", "0") );
-        ps.push_to_insert( ps.push_to_print( save_reg_to_t0("$a1", to_string(pos))  ) );
-    } else {
-        // we know were inside a function, so we must save
-        // the var in the local stack
-        ps.push_to_print( load_reg("$a1", "0")  );
-        ps.push_to_insert( ps.push_to_print( save_reg("$a1") ) );
-    }
-    // TODO: initialize the variable
-}
-
-void Codegen::generate_assign(Node *n){
-    // TODO
-}
-
-void Codegen::generate_funccall(Node *n){
-    Node* arglist = (*n)[1];
-    list<string>::iterator f_call;
-    // get the destination register for n
-    string dest_reg = get_dest_reg(n);
-    string f_call_name = string("_f_") + (*n)[0]->getType();
-    // do function stuff
-    ps.push_to_print(  copy_reg(dest_reg, "$v0"), 0              );
-    ps.push_to_print(  function_restore(), 0                     );
-    f_call = ps.push_to_print(  function_call( f_call_name ), 0  );
-    ps.push_to_print(  function_save(), 0                        );
-    // fix position of the insert stack to allow variables
-    // to know where to go inside the funccall
-    for (int i = 0; i < arglist->size_children(); ++i){
-        ps.push_to_insert( f_call );
-    }
-}
-
-void Codegen::generate_arglist(Node *n){
-    // this forces the arguments of the function call to return
-    // to the next insert position that they should fit in
-    for (list<Node*>::reverse_iterator it = n->rbegin(); it != n->rend(); ++it){
-        Node *arg = *it;
-        arg->add(T_SYM, AST_ENDSTATEMENT, n->getLine() );
-        arg->add(T_SYM, AST_ENDARG, n->getLine() );
-        arg->add(T_SYM, AST_ENDSTATEMENT, n->getLine() );
-    }
-}
-
-void Codegen::generate_paramlist(Node *n){
-    // add all variables defined inside paramlist to the symbol map
-    for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
-        sym_map[func_name].add(*it);
-    }
-}
-
-void Codegen::generate_block(Node *n){
-    // mark the end of statements
-    std::list<Node*>::iterator it = n->begin();
-    for (++it; it != n->end(); it++){
-        // mark the end of a statment
-        n->insert(it, new Node(T_SYM, AST_ENDSTATEMENT, n->getLine() ));
-    }
-    n->add(T_SYM, AST_ENDSTATEMENT, n->getLine() );
-    // mark the end of the block with a end_block node
-    n->add( T_SYM, AST_ENDBLOCK, n->getLine() );
-}
-
-void Codegen::generate_return(Node *n){
-    // do return stuff
-    ps.push_to_print( jump(func_name + "_ret") , 0 );
-    ps.push_to_print( copy_reg("$v0", "$a0")   , 0 );
-}
-
-void Codegen::generate_if(Node *n){
-    // TODO
-}
-
-void Codegen::generate_while(Node *n){
-    // TODO
-}
-
-void Codegen::generate_break(Node *n){
-    // TODO
-}
-
-void Codegen::generate_continue(Node *n){
-    // TODO
-}
-
-// PSEUDO NODES
-
-void Codegen::generate_block_end(Node *n){
-    // if our parent is a decfunction, then swtich the
-    // func_name to program
-    Node *block_parent = n->getParent()->getParent();
-    if (block_parent->getType() == AST_DECFUNC){
-        func_name = CG_FNAME_PROGRAM;
-    }
-    // TODO: detect end if, end else, end while
-}
-
-void Codegen::generate_end_statement(Node *n){
-    // set the next place to insert text
-    ps.pop_to_insert();
-}
-
-void Codegen::generate_end_arg(Node *n){
-    // we need to save the generated funccall arg into the stack
-    // (to do so, we need to know which reg to save)
-    Node *arg = n->getParent();
-    Node *arglist = arg->getParent();
-
-    // // TODO remove debug
-    // cout << *arglist << "\n";
-    // cout << *arg << "\n\n";
-
-    string dest_reg = "$a1";
-    if (arglist->find(arg) == 0){
-        // in this case, we know reg must be $a0 by definition, otherwise
-        // its $a1
-        dest_reg = "$a0";
-    }
-    ps.push_to_print( save_reg(dest_reg), 0 );
-}
-
-// nodes not specified above are being treated below
-
-void Codegen::generate_sym(Node *n){
-   if (n->getType() == "+"){
-        math_op.push(n);
-    }
-
-    // get the destination register for n
-    // Node *parent = n->getParent();
-    // string cmp_reg;
-    // string dest_reg = get_dest_reg(n, &cmp_reg);
-    // if (n->getType() == "+"){
-        // ps.push_to_print( load_reg(cmp_reg) , 0 );
-        // ps.push_to_print( add(dest_reg, "$a0", "$a1") , 0 );
-        // ps.push_to_print( save_reg(cmp_reg) );
-    // }
-}
-
-void Codegen::generate_id(Node *n){
-    // get the destination register for n
-    Node *parent = n->getParent();
-    string dest_reg = get_dest_reg(n);
-    // test if we are trying to use a variable (not function, not declaration, not anything else!)
-    if (parent->getType() != AST_DECFUNC && parent->getType() != AST_PARAMLIST &&
-        parent->getType() != AST_FUNCCALL){
-        // we are in a DECVAR, ARGLIST or a general EXPRESSION
-        int pos = parent->find(n);
-        if (parent->getType() != AST_DECVAR || (parent->getType() == AST_DECVAR && pos == 1)){
-            // we know were trying to get a variable from the stack for a VARIABLE INITIALIZATION,
-            // ARGLIST of a funccall, or expression
-            // (in other words, this id is a variable of an expression)
-            try {
-                int stack_pos = sym_map[func_name].get(n);
-                // if we reach here, we have a local variable
-                operands.push( load_reg_from_fp(dest_reg, to_string(stack_pos)) );
-            } catch(Error& e) {
-                int stack_pos = sym_map[CG_FNAME_PROGRAM].get(n);
-                // if we reach here, we have a global variable
-                operands.push( load_reg_from_t0(dest_reg, to_string(stack_pos)) );
-            }
-            // process this new operand
-            process_op();
-        }
-    }
-}
-
-void Codegen::generate_dec(Node *n){
-    // get the destination register for n
-    string dest_reg = get_dest_reg(n);
-    // process new operand
-    operands.push( load_reg(dest_reg, n->getType()) );
-    process_op();
-}
-
 
 // generate assembly code based on node n
-void Codegen::generate(Node *n){
+string Codegen::generate(Node *n){
+    string res = "";
     // detect reserved words and structures of the language
     if (n->getType() == AST_DECFUNC){
-        generate_decfunc(n);
+        list<Node*>::iterator it = n->begin();
+        // node 1 (id) - name of the function
+        func_name = "_f_" + (*(it++))->getType();
+        // create the function context
+        sym_map[func_name] = MemContext();
+        // generate the asm
+        res += func_name + ":\n"      +
+              copy_reg("$fp", "$t1")  ;
+        // node 2 (paramlist) - function parameters here
+        res += generate(*(it++));
+        // node 3 (block) - the body of the function goes here
+        res += generate(*(it++));
+        // return function
+        res += function_return();
+
+
     } else if (n->getType() == AST_DECVAR) {
-        generate_decvar(n);
+        list<Node*>::iterator it = n->begin();
+        // get var name
+        Node *n_id = *(it++);
+        // add var to the symbol table
+        sym_map[func_name].add(n_id);
+        // add variable to the stack / global place
+        if (n->getParent()->getType() == AST_PROGRAM){
+            // get the position of the variable in global stack
+            int pos = sym_map[func_name].get(n_id);
+            // initialize global var to 0 if no initialization statement
+            // is found
+            if (it == n->end()){
+                res += load_reg("$a1", "0");
+            } else {
+                res += generate(*(it++));
+            }
+            // save the result of the initialization into the global
+            // "stack" / memory
+            res += save_reg_to_t0("$a1", to_string(pos));
+        } else {
+            // initialize global var to 0 if no initialization statement
+            // is found
+            if (it == n->end()){
+               res += load_reg("$a1", "0");
+            } else {
+                res += generate(*(it++));
+            }
+            // save the result of the initialization into the local "stack"
+            res += save_reg("$a1");
+        }
+
+
     } else if (n->getType() == AST_ASSIGN) {
-        generate_assign(n);
+        // generate_assign(n);
+
+
     } else if (n->getType() == AST_FUNCCALL){
-        generate_funccall(n);
+            list<Node*>::iterator it = n->begin();
+            // get the destination register for n
+            string cmp_reg;
+            string dest_reg = get_dest_reg(n, &cmp_reg);
+            // funccall name
+            Node* id = (*(it++));
+            string f_call_name = string("_f_") + id->getType();
+            // save registers that the function will change
+            res += save_reg(cmp_reg) +
+                   function_save()   ;
+            // load function arguments
+            res += generate(*(it++));
+            // perform funccall
+            res += function_call( f_call_name ) +
+                   copy_reg(dest_reg, "$v0")    +
+                   // restore registers the function has changed
+                   function_restore() +
+                   load_reg(cmp_reg);
+
+
     } else if (n->getType() == AST_ARGLIST){
-        generate_arglist(n);
+        // get the destination register for n
+        string dest_reg;
+        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
+            dest_reg = get_dest_reg(*it);
+            res += generate(*it)      +
+                   save_reg(dest_reg) ;
+        }
+
+
     } else if (n->getType() == AST_PARAMLIST){
-        generate_paramlist(n);
+        // add all variables defined inside paramlist to the symbol map
+        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
+            sym_map[func_name].add(*it);
+        }
+
+
     } else if (n->getType() == AST_BLOCK){
-        generate_block(n);
+        // parse block nodes
+        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
+            res += generate(*it);
+        }
+
+
     } else if (n->getType() == AST_RETURN){
-        generate_return(n);
+        // get the return result
+        res += generate( *(n->begin()) );
+        // generate func return
+        res += copy_reg("$v0", "$a0")   +
+               jump(func_name + "_ret") ;
+
+
     } else if (n->getType() == AST_IF){
-        generate_if(n);
+        // generate_if(n);
+
+
     } else if (n->getType() == AST_WHILE){
-        generate_while(n);
+        // generate_while(n);
+
+
     } else if (n->getType() == AST_BREAK){
-        generate_break(n);
+        // generate_break(n);
+
+
     } else if (n->getType() == AST_CONTINUE){
-        generate_continue(n);
+        // generate_continue(n);
+
+
     } else if (n->getType() == AST_PROGRAM){
-        generate_program(n);
-    // pseudo nodes used only by codegenerator only for .asm file creation
-    } else if (n->getType() == AST_ENDBLOCK){
-        generate_block_end(n);
-    } else if (n->getType() == AST_ENDSTATEMENT){
-        generate_end_statement(n);
-    } else if (n->getType() == AST_ENDARG){
-        generate_end_arg(n);
+        // create the PROGRAM context
+        sym_map[func_name = CG_FNAME_PROGRAM] = MemContext();
+        // we are at the beginning of the program, create default structure
+        res += ".data\n\n.text\n\n"            +
+              string("_f_print:\n")            +
+              copy_reg("$fp", "$t1")           +
+              load_reg("$a0")                  +
+              load_reg("$v0", "1")             +
+              "  syscall\t\t# print integer\n" +
+              load_reg("$v0", "11")            +
+              load_reg("$a0", "0x0a")          +
+              "  syscall\t\t# print newline\n" +
+              function_return()                ;
+        // weve reached the part of the program that declares the functions
+        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
+            Node *child = *it;
+            if (child->getType() == AST_DECFUNC){
+                res += generate(child);
+            }
+        }
+        res += "main:\n" +
+              copy_reg("$fp", "$sp")                         +
+              load_reg("$t0", "0x10000000")                  ;
+        // global variables go here
+        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
+            Node *child = *it;
+            if (child->getType() == AST_DECVAR){
+                // correct the funcname stack issue here
+                func_name = CG_FNAME_PROGRAM;
+                // gen code
+                res += generate(child);
+            }
+        }
+        res +=  function_save()                              +
+              function_call("_f_main")                       +
+              function_restore()                             +
+              "  move $a0, $v0\n"                            +
+              load_reg("$v0", "17")                          +
+              "  syscall\t\t# call exit with errcode $v0\n"  ;
+
+
     // detect tokens not already specified above
     } else if (n->getToken() == T_SYM){
-        generate_sym(n);
+        // changed register, but not required by the operation
+        string cmp_reg;
+        // detect dest_reg of the operation
+        string dest_reg = get_dest_reg(n, &cmp_reg);
+        // protect changed registers
+        res += save_reg(cmp_reg);
+        // generate operands code
+        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
+            res += generate(*it);
+        }
+        // perform operation
+        if (n->getType() == "+"){
+            res += add(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "*"){
+            res += mul(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "/"){
+            res += div(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "<"){
+            res += lt(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "<="){
+            res += lte(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == ">"){
+            res += gt(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == ">="){
+            res += gte(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "=="){
+            res += eq(dest_reg, "$a0", "$a1");
+        } else if (n->getType() == "!="){
+            res += neq(dest_reg, "$a0", "$a1");
+        }
+       // load protected registers back in
+        res += load_reg(cmp_reg);
+        // TODO add other operations
+
+
     } else if (n->getToken() == T_ID){
-        generate_id(n);
+        int stack_pos;
+        // get the destination register for n
+        string dest_reg = get_dest_reg(n);
+        // find the variable address and load it into a dest_reg register
+        try {
+            stack_pos = sym_map[func_name].get(n);
+            // if we reach here, we have a local variable
+            res += load_reg_from_fp(dest_reg, to_string(stack_pos));
+        } catch(Error& e) {
+            stack_pos = sym_map[CG_FNAME_PROGRAM].get(n);
+            // if we reach here, we have a global variable
+            res += load_reg_from_t0(dest_reg, to_string(stack_pos));
+        }
+
+
     } else if (n->getToken() == T_DEC){
-        generate_dec(n);
+        // get the destination register for n
+        string dest_reg = get_dest_reg(n);
+        // process new operand
+        res += load_reg(dest_reg, n->getType());
     }
+
+    return res;
 }
 
 // PUBLIC FUNCTIONS
 
 // run codegenerator
 void Codegen::run(){
-    // build all stack based on the operation order
-    list<Node*>::iterator act = operate.begin();
-    list<Node*>::iterator ins = operate.end();
-    while(act != ins) {
-        Node *n = *act;
-        // // TODO: remove debug stat below
-        // cout << *n << "\n\n";
-
-        // generate assembly based on n
-        generate(n);
-        // get all children of the n node and insert them one after another
-        // preserving their relative order
-        for (list<Node*>::iterator it = n->begin(); it != n->end(); ++it){
-            ins = operate.insert(ins, *it);
-            ins++;
-        }
-        // remove already seen node, update act to the next node,
-        // and make ins = act + 1 (next node)
-        operate.erase(act++);
-        ins = act;
-        if (ins != operate.end())
-            ins++;
-    }
-    // print the whole stack block into the file
-    cout << ps << endl;
-    // TODO: remove debug statements below
-    // cout << "\n\n";
-    // for (std::map<std::string, MemContext>::iterator it = sym_map.begin(); it != sym_map.end(); ++it){
-    //     cout << "--------------   Memory Context: " << it->first << "   -----------------\n\n" << it->second << "\n";
-    // }
+    cout << generate(program) << endl;
 }

@@ -24,9 +24,4 @@
 #define AST_BREAK "break"
 #define AST_CONTINUE "continue"
 
-// nodes that are only used by the codegenerator to create the .asm file
-#define AST_ENDBLOCK "end_block"
-#define AST_ENDSTATEMENT "end_statement"
-#define AST_ENDARG "end_arg"
-
 #endif // AST_TYPES_H
