@@ -80,7 +80,22 @@ string Codegen::generate(Node *n){
 
 
     } else if (n->getType() == AST_ASSIGN) {
-        // TODO
+        int stack_pos;
+        list<Node*>::iterator it = n->begin();
+        // node 1 (id) - name of the variable to assign
+        Node *id = *(it++);
+        // node 2 (expr) - run expr
+        res += generate(*(it++));
+        // find the variable address
+        try {
+            stack_pos = sym_map[func_name].get(id);
+            // if we reach here, we have a local variable
+            res += Assembly::save_reg_to_fp("$a1", to_string(stack_pos));
+        } catch(Error& e) {
+            stack_pos = sym_map[CG_FNAME_PROGRAM].get(id);
+            // if we reach here, we have a global variable
+            res += Assembly::save_reg_to_t0("$a1", to_string(stack_pos));
+        }
 
 
     } else if (n->getType() == AST_FUNCCALL){

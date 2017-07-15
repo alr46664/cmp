@@ -162,6 +162,11 @@ static std::string load_reg_from_t0(std::string reg, std::string pos){
 }
 
 // save reg into stack
+static std::string save_reg_to_fp(std::string reg, std::string pos){
+    return std::string("  sw ") + reg + ", " + pos + "($fp)\n";
+}
+
+// save reg into stack
 static std::string save_reg_to_t0(std::string reg, std::string pos){
     return std::string("  sw ") + reg + ", " + pos + "($t0)\n";
 }
