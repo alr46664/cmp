@@ -262,7 +262,11 @@ void Sintatical::check_paramlist(){
 }
 
 void Sintatical::check_block(){
+    Node *block = top;
     verify_children(false, {}, {AST_DECVAR, AST_ASSIGN, AST_FUNCCALL, AST_RETURN, AST_IF, AST_WHILE, AST_BREAK, AST_CONTINUE}, string("A block of code defined by {} can contain variable declarations, function calls, return, if and while statements, break and continue.") );
+    if (block->getParent()->getType() != AST_DECFUNC){
+        sem.addContext(string("block_") + to_string(block_count++), block);
+    }
 }
 
 void Sintatical::check_return(){
@@ -290,9 +294,6 @@ void Sintatical::check_if(){
         case 2:
             if (child->getType() != AST_BLOCK) {
                 res = false;
-            } else {
-                // semantical analisis
-                sem.addContext(n_if->getType(), child);
             }
             break;
         default:
@@ -301,8 +302,6 @@ void Sintatical::check_if(){
         }
     }
     if (!res) throw Error(string("If [else] syntax incorrect!"), top->getType(), top->getLine(), ERR_SIN);
-    // add the if block to the semantical analisis
-    // sem.addContext(n_if);
 }
 
 void Sintatical::check_while(){
@@ -322,9 +321,6 @@ void Sintatical::check_while(){
         case 1:
             if (child->getType() != AST_BLOCK) {
                 res = false;
-            } else {
-                // add the while block to the semantical analisis
-                sem.addContext(n_while->getType(), child);
             }
             break;
         default:

@@ -28,6 +28,8 @@ private:
     std::list<Node*> operate;
     // the top node of the list
     Node* top;
+    // block count
+    int block_count;
 
     // private functions
 
@@ -55,6 +57,7 @@ private:
 public:
 
     Sintatical(Node* p) {
+        block_count = 1;
         // add the program AST to the analiser
         operate.push_back(top = p);
         // add global scope (program)

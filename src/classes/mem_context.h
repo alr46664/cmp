@@ -19,7 +19,8 @@
 
 class MemContext {
 private:
-    std::map<std::string, int> mem_map;
+    std::list<std::string> names;
+    std::list<int> stack_pos;
     int last_mem_pos;
 public:
 
@@ -28,14 +29,16 @@ public:
     }
 
     void add(Node *n);
+    void remove(Node *n);
     int get(Node *n);
 
     //    NON-MEMBER
     // (friend allows access to the
     // private / protected variables)
     friend std::ostream& operator<<(std::ostream &output, const MemContext &MC){
-        for(std::map<std::string, int>::const_iterator it = MC.mem_map.begin(); it != MC.mem_map.end(); it++){
-            output << it->first << " => " << it->second << "\n";
+        std::list<std::string>::const_iterator it_s = MC.names.begin();
+        for(std::list<int>::const_iterator it = MC.stack_pos.begin(); it != MC.stack_pos.end(); it++){
+            output << *(it_s++) << " => " << *it << "\n";
         }
         output << "\n";
         return output;

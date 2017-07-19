@@ -57,7 +57,7 @@ int main(int argc, char **argv) {
         // Utility::redirect_in_out(in_file, out_file + ".lex", yylex);
         // Utility::redirect_in_out(out_file + ".lex", out_file, run_semantical_sintatical);
 
-        // rode gerador de codigo
+        // // rode gerador de codigo
         Utility::redirect_in_out(in_file, out_file + ".lex", yylex);
         Utility::redirect_in_out(out_file + ".lex", out_file + ".syn", run_semantical_sintatical);
         Utility::redirect_in_out(out_file + ".syn", out_file, run_codegen);

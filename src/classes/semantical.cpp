@@ -64,23 +64,15 @@ Defined& Semantical::get(Node* n){
 
 // set a new context varible/function (defined by t)
 void Semantical::set(Node* n, string t, int s){
-    try {
-        // try to get it from the contexts already defined
-        // (this should throw an error if variable/function not set)
-        get(n);
-    } catch (Error& e) {
-        // this catch is expected to happen, since we dont have the
-        // function / variable declared yet (the get() should throw Error)
-
-        // TODO
-        Context* c = findContext(n);
-        if (c == NULL)
-            throw Error(string("Could not find a context to add the variable!"), n->getType(), n->getLine(), ERR_SEM);
-        c->add(n->getType(), t, s);
-        return;
+    Context* c = findContext(n);
+    if ( c == NULL ){
+        throw Error(string("Could not find a context to add the variable!"), n->getType(), n->getLine(), ERR_SEM);
     }
-    // if we reached this point, our function failed becuse the
-    // get didnt throw the error (which means we've found the function/variable
-    // in other contexts already defined)
-    throw Error(string("Could not set a new variable / function (duplicated names not allowed)!"), n->getType(), n->getLine(), ERR_SEM);
+    if ( c->find(n->getType()) != c->end() ){
+        // if we reached this point, our function failed becuse the
+        // get didnt throw the error (which means we've found the function/variable
+        // in other contexts already defined)
+        throw Error(string("Could not set a new variable / function (duplicated names not allowed)!"), n->getType(), n->getLine(), ERR_SEM);
+    }
+    c->add(n->getType(), t, s);
 }

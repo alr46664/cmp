@@ -1,12 +1,18 @@
 // TODOS ESSES TESTES FUNCIONAM:
 
-// let x;
+let x;
 
 // def bla(c,q){
+//     if (c > q){
+//         let c;
+//         print(c);
+//         print(q);
+//     }
 //     return c+q;
 // }
 
-// def main(){
+def main(){
+    let q;
     // print(0||0);
     // print(0||1);
     // print(1||1);
@@ -41,6 +47,15 @@
     // } else {
     //     print(15);
     // }
+    if(0 == 0){
+        let x = 7;
+        print(x);
+        q = q+5;
+        print(q);
+    }
+    x = 10+2;
+    print(x);
+    print(q);
     // print(12+8);
     // print((-5)+2);
     // let c = 5+8;
@@ -50,31 +65,9 @@
     // x = 4+2;
     // print(x);
 //     return print(c+2>10);
-// }
+}
 
-// def main(c,q){
-
-//     if (c+q) {
-//         let z;
-//         return c+8*z;
-//     } else {
-//         return 10;
-//     }
-
-//     if(q){
-//         return q+c;
-//     }
-
-//     if (c) {
-//         return c;
-//     } else {
-//         return q;
-//     }
-
-//     c = q+7;
-// }
-
-// def main(c,q){
+// def main(){
 //     var l=(-8+2)*5;
 //     return l;
 // }
